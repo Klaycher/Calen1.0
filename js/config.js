@@ -30,15 +30,13 @@ const DAYS_FULL  = ['Воскресенье','Понедельник','Втор�
 const DAYS_SHORT = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
 const MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 
-// Данные загружаются по сети из папки data/ на GitHub (без дублирования внутри кода)
-let BASELINE_CLASSES_1B    = {};
-let BASELINE_EXAMS_1B      = [];
-let DEFAULT_WORK_SHIFTS_24H = ['2026-10-29','2026-11-02','2026-11-06','2026-11-10','2026-11-14'];
-let DEFAULT_PERSONAL_NOTES = {};
-let DEFAULT_EXAMS          = [];
-let DEFAULT_CLASSES        = {};
-let BSU_TEACHERS_DB        = [];
-let DEFAULT_APP_RELEASES   = [];
+// Все данные расписания хранятся исключительно в файле schedule.json на GitHub (в коде нет бэкапа расписания)
+const DEFAULT_WORK_SHIFTS_24H = [];
+const DEFAULT_PERSONAL_NOTES  = {};
+const DEFAULT_EXAMS           = [];
+const DEFAULT_CLASSES         = {};
+let BSU_TEACHERS_DB           = [];
+let DEFAULT_APP_RELEASES      = [];
 
 function loadParsedStorage(key, fallbackObj) {
   try {
@@ -319,29 +317,28 @@ async function loadModularDataFiles() {
   const customOta = Array.isArray(savedReleases) ? savedReleases.filter(r => r && !String(r.id || '').startsWith('rel_0')) : [];
   APP_RELEASES_LOG = [...customOta, ...DEFAULT_APP_RELEASES];
 
-  // 3. Загружаем расписание (data/schedule.json или schedule.json в корне)
-  let schedData = null;
-  if (!inlineFallback) {
-    for (const candidatePath of ['data/schedule.json', 'schedule.json']) {
-      schedData = await fetchRepoJsonFile(candidatePath);
-      if (schedData) break;
-    }
-  }
-  if (!schedData && inlineFallback && inlineFallback.schedule) {
-    schedData = JSON.parse(JSON.stringify(inlineFallback.schedule));
-  }
+  // 3. Загружаем расписание исключительно из файла schedule.json на GitHub (или кэша после синхронизации)
+  CLASSES         = sanitizeClassesData(loadParsedStorage(STORAGE_KEY_CLASSES, DEFAULT_CLASSES));
+  EXAMS           = loadParsedStorage(STORAGE_KEY_EXAMS, DEFAULT_EXAMS);
+  WORK_SHIFTS_24H = loadParsedStorage(STORAGE_KEY_SHIFTS, DEFAULT_WORK_SHIFTS_24H);
+  PERSONAL_NOTES  = loadParsedStorage(STORAGE_KEY_NOTES, DEFAULT_PERSONAL_NOTES);
 
-  if (schedData && typeof schedData === 'object') {
-    BASELINE_CLASSES_1B = JSON.parse(JSON.stringify(schedData.classes || {}));
-    BASELINE_EXAMS_1B   = JSON.parse(JSON.stringify(schedData.exams || []));
-    DEFAULT_CLASSES     = BASELINE_CLASSES_1B;
-    DEFAULT_EXAMS       = BASELINE_EXAMS_1B;
-    if (Array.isArray(schedData.shifts)) {
-      DEFAULT_WORK_SHIFTS_24H = schedData.shifts;
+  for (const candidatePath of ['data/schedule.json', 'schedule.json']) {
+    const schedData = await fetchRepoJsonFile(candidatePath);
+    if (schedData && typeof schedData === 'object') {
+      if (schedData.classes && typeof schedData.classes === 'object') {
+        CLASSES = sanitizeClassesData(schedData.classes);
+      }
+      if (Array.isArray(schedData.exams)) {
+        EXAMS = schedData.exams;
+      }
+      if (Array.isArray(schedData.shifts)) {
+        WORK_SHIFTS_24H = schedData.shifts;
+      }
+      if (schedData.notes && typeof schedData.notes === 'object') {
+        PERSONAL_NOTES = schedData.notes;
+      }
+      break;
     }
-    CLASSES         = sanitizeClassesData(loadParsedStorage(STORAGE_KEY_CLASSES, DEFAULT_CLASSES));
-    EXAMS           = loadParsedStorage(STORAGE_KEY_EXAMS, DEFAULT_EXAMS);
-    WORK_SHIFTS_24H = loadParsedStorage(STORAGE_KEY_SHIFTS, DEFAULT_WORK_SHIFTS_24H);
-    PERSONAL_NOTES  = loadParsedStorage(STORAGE_KEY_NOTES, schedData.notes || {});
   }
 }
