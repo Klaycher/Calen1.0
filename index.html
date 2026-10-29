@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <!-- PWA & МОБИЛЬНЫЙ STANDALONE-РЕЖИМ (ОТКРЫТИЕ КАК ОТДЕЛЬНОЕ ПРИЛОЖЕНИЕ) -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Расписание 1Б" />
+  <meta name="application-name" content="Расписание 1Б" />
+  <meta name="theme-color" content="#090b10" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='50%25' stop-color='%23a855f7'/%3E%3Cstop offset='100%25' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Ctext x='50' y='63' fill='white' font-family='sans-serif' font-weight='900' font-size='42' text-anchor='middle'%3E1Б%3C/text%3E%3C/svg%3E" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='50%25' stop-color='%23a855f7'/%3E%3Cstop offset='100%25' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Ctext x='50' y='63' fill='white' font-family='sans-serif' font-weight='900' font-size='42' text-anchor='middle'%3E1Б%3C/text%3E%3C/svg%3E" />
+  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D0%A0%D0%B0%D1%81%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%201%D0%91%20%E2%80%A2%20%D0%AE%D1%80%D1%84%D0%B0%D0%BA%20%D0%91%D0%93%D0%A3%22%2C%22short_name%22%3A%22%D0%A0%D0%B0%D1%81%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%201%D0%91%22%2C%22description%22%3A%22%D0%9A%D0%BE%D0%BE%D1%80%D0%B4%D0%B8%D0%BD%D0%B0%D1%82%D0%BE%D1%80%20%D1%81%D0%B5%D1%81%D1%81%D0%B8%D0%B8%20%D0%B8%20%D0%BF%D1%80%D0%B5%D0%BF%D0%BE%D0%B4%D0%B0%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D0%B8%20%D0%AE%D1%80%D1%84%D0%B0%D0%BA%D0%B0%20%D0%91%D0%93%D0%A3%20%D0%B4%D0%BB%D1%8F%20%D0%B3%D1%80%D1%83%D0%BF%D0%BF%D1%8B%201%D0%91%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23090b10%22%2C%22theme_color%22%3A%22%23090b10%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20100'%253E%253Cdefs%253E%253ClinearGradient%20id%3D'g'%20x1%3D'0%2525'%20y1%3D'0%2525'%20x2%3D'100%2525'%20y2%3D'100%2525'%253E%253Cstop%20offset%3D'0%2525'%20stop-color%3D'%25236366f1'%2F%253E%253Cstop%20offset%3D'50%2525'%20stop-color%3D'%2523a855f7'%2F%253E%253Cstop%20offset%3D'100%2525'%20stop-color%3D'%2523ec4899'%2F%253E%253C%2FlinearGradient%253E%253C%2Fdefs%253E%253Crect%20width%3D'100'%20height%3D'100'%20rx%3D'24'%20fill%3D'url(%2523g)'%2F%253E%253Ctext%20x%3D'50'%20y%3D'63'%20fill%3D'white'%20font-family%3D'sans-serif'%20font-weight%3D'900'%20font-size%3D'42'%20text-anchor%3D'middle'%253E1%D0%91%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22192x192%20512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D" />
+  <title>Расписание 1Б • Координатор сессии и Преподаватели Юрфака БГУ v0.8 (Модульная архитектура)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="css/style.css" />
+<body class="min-h-screen pb-24 sm:pb-12 selection:bg-indigo-500 selection:text-white">
+
+  <!-- ВСПЛЫВАЮЩЕЕ УВЕДОМЛЕНИЕ (TOAST) -->
+  <div id="toastNotification" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2.5 rounded-2xl shadow-2xl border text-xs sm:text-sm font-semibold transition-all duration-200 max-w-[92vw] text-center"></div>
+
+  <!-- ВЕРХНЯЯ НАВИГАЦИЯ -->
+  <header class="sticky top-0 z-40 glass-card border-b border-white/10 px-3 sm:px-6 py-2.5 sm:py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center font-extrabold text-sm sm:text-base text-white shadow-lg shadow-indigo-500/20">
+          1Б
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <h1 class="font-bold text-xs sm:text-base tracking-tight text-white truncate">Расписание • Политология</h1>
+            <span id="storageStatusBadge" class="text-[9px] sm:text-[10px] font-mono uppercase px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shrink-0">
+              schedule.json
+            </span>
+          </div>
+          <p id="headerSubtext" class="text-[10px] sm:text-[11px] text-gray-400 truncate">Минск (UTC+3) • Сессия группы 1Б</p>
+        </div>
+      </div>
+
+      <!-- КНОПКИ УПРАВЛЕНИЯ И ОБНОВЛЕНИЯ -->
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div class="flex items-center gap-1.5 bg-gray-900/90 border border-white/10 px-2 sm:px-2.5 py-1.5 rounded-xl">
+          <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="liveClock" class="font-mono text-[11px] sm:text-sm font-semibold text-white">--:--:--</span>
+        </div>
+
+        <button onclick="openTeachersSection()" class="hidden sm:flex px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 transition items-center gap-1.5 shadow-sm" title="Преподаватели Юрфака БГУ">
+          <span>👨‍🏫</span> <span class="hidden lg:inline">Преподаватели</span>
+        </button>
+
+        <button onclick="openModularExplorerModal()" class="px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/40 transition flex items-center gap-1.5 shadow-sm" title="Модульная структура (13 файлов) и авто-деплой на GitHub">
+          <span>🧩</span> <span class="hidden md:inline">Модули (13)</span>
+        </button>
+
+        <button id="headerAddEventBtn" onclick="openEventModal()" class="hidden px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition items-center gap-1.5 shadow-lg shadow-indigo-600/25">
+          <span>➕</span> <span>Событие</span>
+        </button>
+
+                <button onclick="handlePwaInstallClick()" id="pwaInstallHeaderBtn" class="px-2 sm:px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-indigo-600/30 via-purple-600/30 to-pink-600/30 hover:from-indigo-600/50 hover:to-pink-600/50 text-indigo-200 border border-indigo-500/40 transition flex items-center gap-1 shadow-sm" title="Установить как приложение на телефон">
+          <span>📱</span> <span class="hidden md:inline" id="pwaInstallBtnText">На телефон</span>
+        </button>
+        <button onclick="togglePushNotifications()" id="pushBtn" class="px-2 sm:px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-gray-800/90 hover:bg-gray-700 text-gray-200 border border-white/10 transition flex items-center gap-1" title="Авто-уведомления">
+          <span id="pushIcon">🔕</span> <span class="hidden md:inline" id="pushText">Авто-пуши</span>
+        </button>
+
+        <button id="headerSyncBtn" onclick="openSyncModal()" class="hidden px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-600/25 hover:bg-emerald-600/40 text-emerald-200 border border-emerald-500/40 transition items-center gap-1.5 shadow-sm">
+          <span>🔄</span> <span class="hidden md:inline">Обновить базу</span>
+        </button>
+
+        <button id="headerTimeMachineBtn" onclick="toggleTimeMachine()" class="hidden px-2 sm:px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600/25 hover:bg-indigo-600/40 text-indigo-200 border border-indigo-500/30 transition items-center gap-1" title="Тест времени">
+          <span>🕹️</span> <span class="hidden lg:inline">Тест времени</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Панель Машины Времени -->
+    <div id="timeMachineDrawer" class="hidden max-w-7xl mx-auto mt-2.5 pt-2.5 border-t border-white/10">
+      <div class="flex flex-wrap items-center justify-between gap-2 bg-indigo-950/40 border border-indigo-500/30 rounded-xl p-2.5">
+        <div class="flex items-center gap-2 text-xs text-indigo-200">
+          <span>⚡ <b>Проверка триггеров:</b></span>
+          <span id="simIndicator" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] sm:text-[11px]">Реальное время Минска</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button onclick="setSim('2026-10-26T14:50:00')" class="px-2 py-1 rounded bg-white/10 hover:bg-white/20 text-[10px] sm:text-[11px]">26.10 (14:50 • Пара)</button>
+          <button onclick="setSim('2026-10-26T15:35:00')" class="px-2 py-1 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 text-[10px] sm:text-[11px]">26.10 (15:35 • Окно)</button>
+          <button onclick="setSim('2026-10-29T19:15:00')" class="px-2 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 text-[10px] sm:text-[11px]">29.10 (Смена + Пара)</button>
+          <button onclick="setSim('2026-10-30T09:15:00')" class="px-2 py-1 rounded bg-fuchsia-500/20 hover:bg-fuchsia-500/30 text-fuchsia-200 text-[10px] sm:text-[11px]">30.10 (09:15 • Утро)</button>
+          <button onclick="resetSim()" class="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] sm:text-[11px] font-semibold">Сброс</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-2.5 sm:px-6 pt-3 sm:pt-4 space-y-4 sm:space-y-5">
+
+    <!-- БЛОК АДМИН-МОНИТОРИНГА САЙТА ЮРФАКА БГУ И ДЕМО-РЕЖИМА (v0.7, виден только в админ-панели) -->
+    <section id="adminAutoUpdatePanel" class="hidden glass-card rounded-2xl p-3.5 sm:p-4 border border-emerald-500/35 bg-gradient-to-r from-emerald-950/50 via-indigo-950/50 to-purple-950/40 shadow-xl space-y-3">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+        <div class="flex items-start sm:items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center text-base shrink-0">
+            🏛️
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-xs sm:text-sm font-extrabold text-white">Автопроверка расписания Юрфака БГУ (4 курс, Политология, заочное)</span>
+              <span id="bsuCheckStatusBadge" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                Готов к проверке
+              </span>
+            </div>
+            <p class="text-[11px] text-gray-300 mt-0.5">
+              Проверка <a href="https://law.bsu.by/student/rasklad-zanyatkau/pervoe-vysshee-i-parallelnoe-obrazovanie.html" target="_blank" rel="noopener noreferrer" class="text-indigo-300 underline hover:text-indigo-200">law.bsu.by</a> запускается автоматически при входе в админку. Загрузка на GitHub — только с твоего разрешения.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+          <button type="button" onclick="checkBsuWebsiteSchedule(true)" id="adminCheckBsuBtn" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-bold transition shadow-lg shadow-emerald-600/20 flex items-center gap-1.5">
+            <span>🔍 Проверить сайт БГУ</span>
+          </button>
+          <button type="button" onclick="runDemoAutoUpdateTest()" id="adminRunDemoBtn" class="px-3 py-1.5 rounded-xl bg-amber-500/25 hover:bg-amber-500/40 active:scale-95 text-amber-200 border border-amber-500/40 text-xs font-bold transition flex items-center gap-1.5">
+            <span>🧪 Демо-тест (demo.html)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Прогресс-бар и статус проверки / демо-задержки -->
+      <div id="bsuCheckProgressBox" class="hidden p-2.5 rounded-xl bg-gray-950/90 border border-white/10 space-y-1.5">
+        <div class="flex items-center justify-between text-[11px] text-gray-200">
+          <span id="bsuCheckProgressText" class="font-medium">⏳ Выполняется проверка...</span>
+          <span id="bsuCheckProgressTimer" class="font-mono text-indigo-300"></span>
+        </div>
+        <div class="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
+          <div id="bsuCheckProgressBar" class="h-full bg-gradient-to-r from-emerald-500 via-indigo-500 to-purple-500 transition-all duration-300" style="width: 15%"></div>
+        </div>
+      </div>
+
+      <!-- Карточка уведомления об обнаруженных изменениях (Ожидание разрешения администратора) -->
+      <div id="adminScheduleApprovalCard" class="hidden p-3.5 rounded-2xl bg-gray-950/95 border-2 border-amber-500/50 space-y-3 shadow-2xl">
+        <div class="flex items-start justify-between gap-2 border-b border-white/10 pb-2.5">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="approvalSourceBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/25 text-amber-200 border border-amber-400/40">
+                🔔 Найдено обновление расписания
+              </span>
+              <span id="approvalTimestamp" class="text-[10px] font-mono text-gray-400"></span>
+            </div>
+            <h4 id="approvalTitleText" class="text-xs sm:text-sm font-extrabold text-white">
+              Обнаружены изменения в расписании для 4 курса заочного отделения (Политология, гр. 1Б)
+            </h4>
+          </div>
+          <button type="button" onclick="rejectPendingScheduleUpdate()" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/15 text-gray-300 flex items-center justify-center text-xs" title="Закрыть">✕</button>
+        </div>
+
+        <div id="approvalDiffContainer" class="space-y-1.5 text-xs text-gray-200 max-h-60 overflow-y-auto pr-1">
+        </div>
+
+        <div id="approvalDemoNotice" class="hidden p-2 rounded-xl bg-amber-500/15 border border-amber-500/35 text-[11px] text-amber-200 leading-relaxed">
+          🧪 <b>Режим безопасного демо-теста (<code>demo.html</code>):</b> Настоящее расписание группы 1Б и файл <code>schedule.json</code> <b>не будут изменены</b>. Временный файл <code>demo.html</code> автоматически удаляется из репозитория GitHub.
+        </div>
+
+        <div class="flex flex-wrap items-center justify-end gap-2 pt-1 border-t border-white/10">
+          <button type="button" onclick="rejectPendingScheduleUpdate()" id="approvalRejectBtn" class="px-3.5 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/35 text-rose-200 border border-rose-500/35 text-xs font-bold transition">
+            ✕ Отклонить изменения
+          </button>
+          <button type="button" onclick="approvePendingScheduleUpdate()" id="approvalConfirmBtn" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-600/25 transition flex items-center gap-1.5">
+            <span>✅ Разрешить и загрузить на GitHub</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- БЛОК 1: СТРОГИЙ ШАБЛОН ОТВЕТА АССИСТЕНТА -->
+    <section id="sectionLiveSummary" class="glass-card rounded-2xl p-3.5 sm:p-5 border-l-4 border-l-indigo-500 shadow-xl">
+      <div class="flex items-center justify-between gap-2 mb-2.5">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="px-3 py-1 rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider bg-indigo-500/25 text-indigo-200 border border-indigo-400/40 shadow-sm truncate">
+            ⚡ На данный момент
+          </span>
+          <button onclick="toggleSummaryCollapse()" id="collapseSummaryBtn" class="sm:hidden text-[11px] text-indigo-300 underline">
+            Свернуть
+          </button>
+        </div>
+        <button onclick="copyTemplateText()" id="copyBtn" class="text-[11px] sm:text-xs px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 transition shrink-0">
+          📋 Копировать
+        </button>
+      </div>
+
+      <div id="assistantReportBox" class="bg-gray-950/90 rounded-xl p-3 sm:p-4 border border-white/10 font-sans text-xs sm:text-sm leading-relaxed space-y-2.5 text-gray-100">
+      </div>
+    </section>
+
+    <!-- БЛОК 2: КАЛЕНДАРЬ СЛЕВА + ПОДРОБНАЯ СВОДКА ПО ВЫБРАННОМУ ДНЮ СПРАВА -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-start">
+
+      <!-- ЛЕВАЯ КОЛОНКА (7 из 12): СЕТКА КАЛЕНДАРЯ -->
+      <div id="sectionCalendar" class="lg:col-span-7 glass-card rounded-2xl p-3 sm:p-5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+          <div>
+            <h2 class="text-sm sm:text-lg font-bold text-white">Календарь сессии (26.10 – 15.11.2026)</h2>
+            <p id="calSubtitleText" class="text-[11px] sm:text-xs text-gray-400">Нажми на день для просмотра расписания 👇</p>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="selectToday()" class="px-2.5 py-1 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-semibold">
+              Сегодня
+            </button>
+            <button id="calAddEventBtn" onclick="openEventModal()" class="hidden px-2.5 py-1 rounded-lg bg-emerald-600/25 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/30 text-xs font-semibold">
+              ➕ Событие
+            </button>
+          </div>
+        </div>
+
+        <!-- Легенда -->
+        <div class="flex flex-wrap items-center gap-1 sm:gap-1.5 mb-2.5 pb-2 border-b border-white/10 text-[9px] sm:text-[11px]">
+          <span id="legendShiftBadge" class="hidden px-1.5 py-0.5 rounded badge-work24 font-medium">смена 09–09</span>
+          <span class="px-1.5 py-0.5 rounded badge-zach font-semibold">ЗАЧЁТ</span>
+          <span class="px-1.5 py-0.5 rounded badge-exam font-semibold">ЭКЗАМЕН</span>
+          <span class="px-1.5 py-0.5 rounded badge-contest font-semibold">🏆 Событие</span>
+        </div>
+
+        <!-- Дни недели -->
+        <div class="cal-grid text-center text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">
+          <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div class="text-rose-400">Сб</div><div class="text-rose-400">Вс</div>
+        </div>
+
+        <!-- Сетка 21 дня -->
+        <div id="calendarGrid" class="cal-grid"></div>
+      </div>
+
+      <!-- ПРАВАЯ КОЛОНКА (5 из 12): ДЕТАЛЬНАЯ СВОДКА ВЫБРАННОГО ДНЯ -->
+      <div id="sectionDayDetail" class="lg:col-span-5 glass-card rounded-2xl p-3.5 sm:p-5 border border-indigo-500/25 lg:sticky lg:top-20">
+        <div class="flex items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-white/10">
+          <button onclick="stepSelectedDay(-1)" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-gray-200 transition flex items-center justify-center font-bold" title="Предыдущий день">
+            ←
+          </button>
+          <div class="text-center min-w-0">
+            <div class="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-indigo-400" id="detailDaySubtitle">Сводка по дню</div>
+            <h3 class="text-sm sm:text-lg font-extrabold text-white truncate" id="detailDayTitle">26 октября, Пн</h3>
+          </div>
+          <button onclick="stepSelectedDay(1)" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-gray-200 transition flex items-center justify-center font-bold" title="Следующий день">
+            →
+          </button>
+        </div>
+
+        <!-- Быстрая горизонтальная лента дней -->
+        <div id="quickDayStrip" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-2.5 mb-3 border-b border-white/10"></div>
+
+        <!-- Панель быстрых кнопок добавления в выбранный день (только Админ) -->
+        <div id="dayAdminQuickActions" class="hidden grid grid-cols-2 sm:grid-cols-4 gap-1.5 mb-3">
+          <button onclick="openEventModal('class')" class="py-1.5 px-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/35 border border-indigo-500/30 text-indigo-200 text-[11px] font-semibold flex items-center justify-center gap-1 transition active:scale-95">
+            ➕ Пара
+          </button>
+          <button onclick="openEventModal('exam')" class="py-1.5 px-2 rounded-xl bg-rose-600/20 hover:bg-rose-600/35 border border-rose-500/30 text-rose-200 text-[11px] font-semibold flex items-center justify-center gap-1 transition active:scale-95">
+            ➕ Зач/Экз
+          </button>
+          <button onclick="openEventModal('note')" class="py-1.5 px-2 rounded-xl bg-fuchsia-600/20 hover:bg-fuchsia-600/35 border border-fuchsia-500/30 text-fuchsia-200 text-[11px] font-semibold flex items-center justify-center gap-1 transition active:scale-95">
+            ➕ Заметка
+          </button>
+          <button onclick="toggleWorkShiftForDay(selectedIso)" id="quickShiftToggleBtn" class="py-1.5 px-2 rounded-xl bg-amber-600/20 hover:bg-amber-600/35 border border-amber-500/30 text-amber-200 text-[11px] font-semibold flex items-center justify-center gap-1 transition active:scale-95">
+            🛠️ Смена
+          </button>
+        </div>
+
+        <!-- Содержимое сводки по выбранному дню -->
+        <div id="dayDetailContainer" class="space-y-2.5"></div>
+      </div>
+
+    </div>
+
+    <!-- БЛОК 3: НИЖНИЕ ВКЛАДКИ (ВЕДОМОСТЬ ЗАЧЁТОВ/ЭКЗАМЕНОВ И КАРТА НАКЛАДОК СО СМЕНАМИ) -->
+    <section id="sectionExamsList" class="glass-card rounded-2xl p-3.5 sm:p-5">
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3.5 border-b border-white/10">
+        <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+          <button onclick="switchBottomTab('exams')" id="tabBtnExams" class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 text-white transition">
+            🎓 Зачёты и экзамены (<span id="examsCountLabel">7</span>)
+          </button>
+          <button onclick="switchBottomTab('conflicts')" id="tabBtnConflicts" class="hidden px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-white/5 hover:bg-white/10 text-gray-300 transition">
+            ⚠️ Смены 09–09 (<span id="shiftsCountLabel">5</span>)
+          </button>
+          <button onclick="switchBottomTab('teachers')" id="tabBtnTeachers" class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-white/5 hover:bg-white/10 text-gray-300 transition flex items-center gap-1.5">
+            <span>👨‍🏫 Преподаватели Юрфака БГУ (<span id="teachersCountLabel">15</span>)</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button id="addExamControlBtn" onclick="openEventModal('exam')" class="hidden px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-500/30 transition">
+            ➕ Добавить контроль
+          </button>
+        </div>
+      </div>
+
+      <div id="bottomTabExams" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+      <div id="bottomTabConflicts" class="hidden grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+
+      <!-- ВКЛАДКА: СПРАВОЧНИК ПРЕПОДАВАТЕЛЕЙ ЮРИДИЧЕСКОГО ФАКУЛЬТЕТА БГУ -->
+      <div id="bottomTabTeachers" class="hidden space-y-4">
+        <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-indigo-950/70 via-purple-950/60 to-slate-900/80 border border-indigo-500/30 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-500/25 text-indigo-200 border border-indigo-400/30">
+                🏛️ Юридический факультет БГУ • Минск, ул. Ленинградская, 8
+              </span>
+              <a href="https://law.bsu.by" target="_blank" rel="noopener noreferrer" class="text-[11px] text-indigo-300 hover:text-indigo-200 underline font-medium">
+                Официальный сайт law.bsu.by ↗
+              </a>
+            </div>
+            <h3 class="text-sm sm:text-base font-extrabold text-white">Преподаватели сессии группы 1Б (специальность «Политология»)</h3>
+            <p class="text-xs text-gray-300">Данные и фотографии загружены из официальных открытых профилей кафедр ЮФ БГУ и Электронной библиотеки БГУ. Нажми на карточку преподавателя для просмотра биографии, научных интересов и всех его пар у группы 1Б.</p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0">
+            <div class="relative min-w-[220px] sm:min-w-[250px]">
+              <input type="text" id="teacherSearchInput" oninput="renderTeachersSection()" placeholder="🔍 Поиск по ФИО, предмету, кафедре..." class="w-full rounded-xl bg-gray-950/90 border border-white/15 pl-3 pr-8 py-2 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500" />
+              <button type="button" onclick="clearTeacherSearch()" id="clearTeacherSearchBtn" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs">✕</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Сводная плашка по текущей сессии -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+          <div class="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-between">
+            <div>
+              <div class="text-[10px] uppercase font-bold text-rose-300">Экзамены на этой сессии</div>
+              <div class="font-bold text-white mt-0.5">Гавриленко, Федчук, Слуцкая</div>
+            </div>
+            <span class="text-lg font-extrabold font-mono text-rose-300">3</span>
+          </div>
+          <div class="p-3 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-between">
+            <div>
+              <div class="text-[10px] uppercase font-bold text-purple-300">Зачёты на этой сессии</div>
+              <div class="font-bold text-white mt-0.5">Краснобаева, Пилипенко, Юсупов, Абраменко</div>
+            </div>
+            <span class="text-lg font-extrabold font-mono text-purple-300">4</span>
+          </div>
+          <div class="p-3 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-between">
+            <div>
+              <div class="text-[10px] uppercase font-bold text-sky-300">Только начитка пар (сдача в след. сессию)</div>
+              <div class="font-bold text-white mt-0.5">Наумович, Побережная, Ильина и др.</div>
+            </div>
+            <span class="text-lg font-extrabold font-mono text-sky-300">8</span>
+          </div>
+        </div>
+
+        <!-- Фильтры по кафедрам и форме контроля на текущей сессии -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1" id="teacherFilterPills">
+          <button type="button" onclick="setTeacherFilter('all')" id="tFilter_all" class="shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white transition">
+            Все преподаватели (15)
+          </button>
+          <button type="button" onclick="setTeacherFilter('session_all')" id="tFilter_session_all" class="shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 text-amber-300 border border-amber-500/30 transition">
+            🔥 Сдача на этой сессии (7)
+          </button>
+          <button type="button" onclick="setTeacherFilter('exam')" id="tFilter_exam" class="shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 text-rose-300 border border-rose-500/30 transition">
+            🛑 Принимают экзамен (3)
+          </button>
+          <button type="button" onclick="setTeacherFilter('zach')" id="tFilter_zach" class="shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 text-purple-300 border border-purple-500/30 transition">
+            🎓 Принимают зачёт сейчас (4)
+          </button>
+          <button type="button" onclick="setTeacherFilter('lect_only')" id="tFilter_lect_only" class="shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 text-sky-300 border border-sky-500/30 transition">
+            📚 Только начитка пар (8)
+          </button>
+          <button type="button" onclick="setTeacherFilter('polit')" id="tFilter_polit" class="shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 text-indigo-300 border border-indigo-500/30 transition">
+            🏛️ Кафедра политологии (7)
+          </button>
+          <button type="button" onclick="setTeacherFilter('law')" id="tFilter_law" class="shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 text-emerald-300 border border-emerald-500/30 transition">
+            ⚖️ Юридические кафедры (8)
+          </button>
+        </div>
+
+        <!-- Сетка карточек преподавателей -->
+        <div id="teachersCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
+      </div>
+    </section>
+
+    <!-- ФУТЕР С ВЕРСИЕЙ ПРИЛОЖЕНИЯ 0.5 И ВХОДОМ В АДМИН-ПАНЕЛЬ -->
+    <footer class="pt-4 pb-6 text-center border-t border-white/10 text-gray-400 text-xs space-y-1.5">
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        <span class="px-2.5 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 font-mono font-bold text-[11px]">
+          Версия приложения 0.8 • Модульная
+        </span>
+        <button type="button" id="adminToggleBtn" onclick="handleAdminAuthClick()" class="px-2.5 py-0.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-gray-200 border border-white/20 font-sans font-semibold text-[11px] transition flex items-center gap-1 shadow-sm" title="Вход или выход из панели администратора">
+          <span id="adminToggleIcon">🔒</span>
+          <span id="adminToggleText">Вход в админ-панель</span>
+        </button>
+        <button type="button" id="footerChangelogBtn" onclick="openChangelogModal()" class="hidden px-2.5 py-0.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-gray-200 border border-white/20 font-sans font-medium text-[11px] transition items-center gap-1 shadow-sm" title="История изменений в календаре">
+          <span>📜 Лог изменений</span>
+          <span id="changelogCountBadge" class="px-1.5 py-0.2 rounded-full bg-indigo-500/30 text-indigo-200 font-mono text-[10px]">0</span>
+        </button>
+        <span class="text-gray-500">•</span>
+        <span>Координатор сессии группы 1Б (Политология)</span>
+      </div>
+      <p id="footerSyncInfo" class="text-[11px] text-gray-500">Синхронизация расписания с GitHub (schedule.json) • Минск (UTC+3)</p>
+    </footer>
+
+  </main>
+
+  <!-- МОБИЛЬНАЯ НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ -->
+  <nav class="sm:hidden fixed bottom-0 inset-x-0 z-40 glass-card border-t border-white/15 px-2 pt-1.5 safe-bottom-nav">
+    <div id="mobileBottomNavGrid" class="grid grid-cols-4 gap-1 max-w-md mx-auto">
+      <button onclick="scrollToSection('sectionCalendar')" class="flex flex-col items-center justify-center py-1 rounded-xl text-gray-300 hover:text-white active:bg-white/10">
+        <span class="text-base leading-none">📅</span>
+        <span class="text-[9px] font-medium mt-1">Календарь</span>
+      </button>
+      <button onclick="scrollToSection('sectionDayDetail')" class="flex flex-col items-center justify-center py-1 rounded-xl text-gray-300 hover:text-white active:bg-white/10">
+        <span class="text-base leading-none">📋</span>
+        <span class="text-[9px] font-medium mt-1">День</span>
+      </button>
+      <button id="mobileNavAddBtn" onclick="openEventModal()" class="hidden flex-col items-center justify-center py-1 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 active:scale-95">
+        <span class="text-base leading-none">➕</span>
+        <span class="text-[9px] font-bold mt-1">Добавить</span>
+      </button>
+      <button onclick="scrollToSection('sectionExamsList')" class="flex flex-col items-center justify-center py-1 rounded-xl text-gray-300 hover:text-white active:bg-white/10">
+        <span class="text-base leading-none">🎓</span>
+        <span class="text-[9px] font-medium mt-1">Сессия</span>
+      </button>
+      <button onclick="openTeachersSection()" class="flex flex-col items-center justify-center py-1 rounded-xl text-purple-300 hover:text-purple-200 active:bg-white/10">
+        <span class="text-base leading-none">👨‍🏫</span>
+        <span class="text-[9px] font-medium mt-1">Преподав.</span>
+      </button>
+      <button id="mobileNavSyncBtn" onclick="openSyncModal()" class="hidden flex-col items-center justify-center py-1 rounded-xl text-emerald-300 hover:text-emerald-200 active:bg-white/10">
+        <span class="text-base leading-none">🔄</span>
+        <span class="text-[9px] font-medium mt-1">ИИ / База</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- МОДАЛЬНОЕ ОКНО: ДОБАВЛЕНИЕ И РЕДАКТИРОВАНИЕ СОБЫТИЙ ВНУТРИ ПРИЛОЖЕНИЯ -->
+  <div id="eventModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="glass-card w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl border-t sm:border border-white/15 p-4 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div>
+          <h3 id="eventModalTitle" class="text-base sm:text-lg font-extrabold text-white flex items-center gap-2">
+            ➕ Добавить событие
+          </h3>
+          <p class="text-xs text-gray-400">Все изменения мгновенно сохраняются в памяти устройства</p>
+        </div>
+        <button onclick="closeEventModal()" class="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 flex items-center justify-center text-lg">✕</button>
+      </div>
+
+      <!-- Выбор типа события -->
+      <div id="eventTypeSelector" class="grid grid-cols-4 gap-1.5 bg-gray-950 p-1 rounded-xl border border-white/10">
+        <button type="button" onclick="switchEventFormTab('class')" id="evTabClass" class="py-2 px-2 rounded-lg text-[11px] font-bold bg-indigo-600 text-white transition">
+          📚 Пара
+        </button>
+        <button type="button" onclick="switchEventFormTab('exam')" id="evTabExam" class="py-2 px-2 rounded-lg text-[11px] font-bold text-gray-400 hover:text-white transition">
+          🎓 Зач/Экз
+        </button>
+        <button type="button" onclick="switchEventFormTab('note')" id="evTabNote" class="py-2 px-2 rounded-lg text-[11px] font-bold text-gray-400 hover:text-white transition">
+          📌 Заметка
+        </button>
+        <button type="button" onclick="switchEventFormTab('shift')" id="evTabShift" class="py-2 px-2 rounded-lg text-[11px] font-bold text-gray-400 hover:text-white transition">
+          🛠️ Смена
+        </button>
+      </div>
+
+      <!-- Выбор даты (общий для всех типов) -->
+      <div>
+        <label class="block text-xs font-semibold text-gray-300 mb-1">Дата события:</label>
+        <select id="evDateSelect" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2.5 text-xs sm:text-sm font-medium text-white focus:outline-none focus:border-indigo-500"></select>
+      </div>
+
+      <datalist id="subjectsPresets">
+        <option value="Хозяйственное право"></option>
+        <option value="Семейное право"></option>
+        <option value="Финансовое право"></option>
+        <option value="Политическая коммуникация"></option>
+        <option value="Организация избирательных кампаний"></option>
+        <option value="Государственная служба"></option>
+        <option value="Теория политики"></option>
+        <option value="Этнополитология"></option>
+        <option value="Уголовное право"></option>
+        <option value="Политика в сфере цифровой трансформации"></option>
+        <option value="Право социального обеспечения"></option>
+        <option value="Земельное и аграрное право"></option>
+        <option value="Уголовный процесс"></option>
+        <option value="Геополитические проблемы в современном мире"></option>
+        <option value="Политические проблемы современной глобалистики"></option>
+      </datalist>
+
+      <!-- ФОРМА 1: УЧЕБНАЯ ПАРА -->
+      <div id="formBodyClass" class="space-y-3">
+        <div>
+          <label class="block text-[11px] text-gray-400 mb-1">Быстрый выбор времени ленты:</label>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button type="button" onclick="setClassSlot('14:10','15:30')" class="py-1.5 rounded-lg bg-white/5 hover:bg-indigo-600/30 border border-white/10 text-[11px] font-mono text-indigo-200">14:10–15:30</button>
+            <button type="button" onclick="setClassSlot('15:50','17:10')" class="py-1.5 rounded-lg bg-white/5 hover:bg-indigo-600/30 border border-white/10 text-[11px] font-mono text-indigo-200">15:50–17:10</button>
+            <button type="button" onclick="setClassSlot('17:20','18:40')" class="py-1.5 rounded-lg bg-white/5 hover:bg-indigo-600/30 border border-white/10 text-[11px] font-mono text-indigo-200">17:20–18:40</button>
+            <button type="button" onclick="setClassSlot('18:50','20:10')" class="py-1.5 rounded-lg bg-white/5 hover:bg-indigo-600/30 border border-white/10 text-[11px] font-mono text-indigo-200">18:50–20:10</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Начало:</label>
+            <input type="time" id="evClassStart" value="14:10" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Конец:</label>
+            <input type="time" id="evClassEnd" value="15:30" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-indigo-500" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 mb-1">Дисциплина (предмет):</label>
+          <input type="text" id="evClassSubject" list="subjectsPresets" placeholder="Например: Хозяйственное право" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-indigo-500" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Кабинет / Ауд.:</label>
+            <input type="text" id="evClassRoom" placeholder="Например: 406" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Форма контроля:</label>
+            <select id="evClassControl" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-indigo-500">
+              <option value="зач">зач (к зачёту)</option>
+              <option value="экз">экз (к экзамену)</option>
+              <option value="лек">лек (лекция)</option>
+              <option value="прак">прак (семинар)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 mb-1">Преподаватель:</label>
+          <input type="text" id="evClassTeacher" placeholder="Например: доц. Пилипенко А.А." class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-indigo-500" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 mb-1">Примечание (необязательно):</label>
+          <input type="text" id="evClassNote" placeholder="Например: Окно после пары / принести кодекс" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-indigo-500" />
+        </div>
+      </div>
+
+      <!-- ФОРМА 2: ЗАЧЁТ ИЛИ ЭКЗАМЕН -->
+      <div id="formBodyExam" class="hidden space-y-3">
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Тип сдачи:</label>
+            <select id="evExamType" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-rose-500">
+              <option value="зач">Зачёт (зач)</option>
+              <option value="экз">Экзамен (экз)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Время начала:</label>
+            <input type="time" id="evExamTime" value="09:30" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-rose-500" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 mb-1">Дисциплина:</label>
+          <input type="text" id="evExamSubject" list="subjectsPresets" placeholder="Например: Государственная служба" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-rose-500" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Преподаватель:</label>
+            <input type="text" id="evExamTeacher" placeholder="доц. Краснобаева Л.А." class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-rose-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Кабинет:</label>
+            <input type="text" id="evExamRoom" placeholder="уточняется / 406" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-rose-500" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 mb-1">Важная пометка:</label>
+          <input type="text" id="evExamNote" placeholder="Например: Взять зачётку и распечатки вопросов" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-rose-500" />
+        </div>
+      </div>
+
+      <!-- ФОРМА 3: ЛИЧНАЯ ЗАМЕТКА / СОБЫТИЕ -->
+      <div id="formBodyNote" class="hidden space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 mb-1">Название события или заметки:</label>
+          <input type="text" id="evNoteLabel" placeholder="Например: 🏆 Конкурс / Ресницы / Консультация" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-fuchsia-500" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 mb-1">Стиль выделения в календаре:</label>
+          <select id="evNoteColor" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-fuchsia-500">
+            <option value="sky">📌 Голубой (Личная заметка)</option>
+            <option value="contest">🏆 Яркий градиент (Конкурс / Важное событие)</option>
+            <option value="emerald">✅ Изумрудный (Дело / Встреча)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ФОРМА 4: РАБОЧАЯ СМЕНА 09:00–09:00 -->
+      <div id="formBodyShift" class="hidden space-y-3">
+        <div class="p-3.5 rounded-xl bg-amber-500/15 border border-amber-500/35 text-xs text-amber-200 leading-relaxed">
+          🛠️ <b>Суточная рабочая смена (09:00 – 09:00):</b><br/>
+          Если включить смену на выбранный день, календарь автоматически отметит заступление в <b>09:00 утра</b> этого дня и окончание смены в <b>09:00 утра следующего дня</b>.
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
+        <button type="button" onclick="closeEventModal()" class="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-semibold">
+          Отмена
+        </button>
+        <button type="button" onclick="saveEventFromModal()" id="saveEventBtn" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/25 transition">
+          💾 Сохранить событие
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО: ЦЕНТР ОБНОВЛЕНИЙ И AI-СКАНЕР GEMINI v0.5 -->
+  <div id="syncModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="glass-card w-full sm:max-w-2xl rounded-t-3xl sm:rounded-2xl border-t sm:border border-white/15 p-4 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div>
+          <h3 class="text-base sm:text-lg font-extrabold text-white flex items-center gap-2">
+            🔄 Центр обновления и модулей 1Б (v0.8)
+          </h3>
+          <p class="text-xs text-gray-400">Импорт расписания по коду или распознавание фото через Gemini API</p>
+        </div>
+        <button onclick="closeSyncModal()" class="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 flex items-center justify-center text-lg">✕</button>
+      </div>
+
+      <!-- Переключатель: GitHub-файл, AI-сканер и JSON-код -->
+      <div class="grid grid-cols-3 gap-1.5 bg-gray-950 p-1 rounded-xl border border-white/10">
+        <button type="button" onclick="switchSyncTab('github')" id="syncTabGithubBtn" class="py-2 px-2 rounded-lg text-[11px] sm:text-xs font-bold bg-emerald-600 text-white transition">
+          🐙 Файл на GitHub
+        </button>
+        <button type="button" onclick="switchSyncTab('ai')" id="syncTabAiBtn" class="py-2 px-2 rounded-lg text-[11px] sm:text-xs font-bold text-gray-400 hover:text-white transition">
+          📸 AI-сканер по фото (Gemini)
+        </button>
+        <button type="button" onclick="switchSyncTab('json')" id="syncTabJsonBtn" class="py-2 px-2 rounded-lg text-[11px] sm:text-xs font-bold text-gray-400 hover:text-white transition">
+          📋 JSON-код / Сброс базы
+        </button>
+      </div>
+
+      <!-- ВАРИАНТ 0: ХРАНЕНИЕ И АВТО-ОБНОВЛЕНИЕ ОТДЕЛЬНОГО ФАЙЛА SCHEDULE.JSON НА GITHUB -->
+      <div id="syncTabGithubBody" class="space-y-3.5">
+        <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-200 leading-relaxed space-y-1">
+          <div>🐙 <b>Хранение расписания в отдельном файле <code>schedule.json</code> на GitHub:</b></div>
+          <div class="text-[11px] text-gray-300">
+            При открытии сайта приложение автоматически читает файл <code>schedule.json</code> из репозитория. Если указать ниже параметры репозитория и GitHub Token (с правом <code>repo</code> или <code>contents:write</code>), то <b>при любом изменении расписания в админ-панели файл <code>schedule.json</code> на GitHub обновляется автоматически!</b>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Репозиторий GitHub (<code>владелец/репозиторий</code>):</label>
+            <input type="text" id="ghRepoInput" oninput="saveGithubConfigFromInputs()" placeholder="Например: ivanov/raspisanie-1b" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Ветка (branch):</label>
+            <input type="text" id="ghBranchInput" oninput="saveGithubConfigFromInputs()" value="main" placeholder="main" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Путь к файлу в репо:</label>
+            <input type="text" id="ghPathInput" oninput="saveGithubConfigFromInputs()" value="data/schedule.json" placeholder="data/schedule.json" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-semibold text-gray-300 mb-1">GitHub Personal Access Token (для авто-записи):</label>
+            <div class="relative">
+              <input type="password" id="ghTokenInput" oninput="saveGithubConfigFromInputs()" placeholder="ghp_... или github_pat_..." autocomplete="off" spellcheck="false" class="w-full rounded-xl bg-gray-950 border border-white/15 pl-3 pr-9 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
+              <button type="button" onclick="toggleGhTokenVisibility()" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-sm" title="Показать/скрыть токен">👁️</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 pt-1">
+          <button type="button" onclick="pushScheduleToGithub('Ручная синхронизация', true)" id="ghPushBtn" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-lg shadow-emerald-600/20 flex items-center gap-1.5">
+            <span>☁️ Обновить schedule.json на GitHub</span>
+          </button>
+          <button type="button" onclick="pullScheduleFromGithub(true)" id="ghPullBtn" class="px-3.5 py-2.5 rounded-xl bg-indigo-600/25 hover:bg-indigo-600/40 text-indigo-200 border border-indigo-500/35 text-xs font-bold transition flex items-center gap-1.5">
+            <span>📥 Загрузить из GitHub</span>
+          </button>
+          <button type="button" onclick="downloadScheduleJsonFile()" class="px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/15 text-gray-200 border border-white/10 text-xs font-semibold transition flex items-center gap-1.5">
+            <span>💾 Скачать schedule.json</span>
+          </button>
+        </div>
+
+        <!-- БЛОК ТОЧЕЧНОГО ОБНОВЛЕНИЯ ЛЮБОГО МОДУЛЯ НА GITHUB (v0.8) -->
+        <div class="p-3.5 rounded-2xl bg-indigo-950/50 border border-indigo-500/40 space-y-2.5 mt-2 shadow-inner">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center justify-center text-xs font-bold">🧩</span>
+              <div>
+                <div class="text-xs font-bold text-white">Точечное обновление любого модуля на GitHub</div>
+                <div class="text-[10px] text-gray-400">Обновляй только нужный блок (.js, .css, .json или index.html), не трогая остальной сайт</div>
+              </div>
+            </div>
+            <button type="button" onclick="openModularExplorerModal()" class="text-[10px] font-mono px-2.5 py-1 rounded-lg bg-emerald-500/25 hover:bg-emerald-500/40 text-emerald-200 border border-emerald-500/40 font-bold transition">
+              📦 Все 13 модулей / Авто-деплой ↗
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div class="space-y-1">
+              <label class="block text-[11px] font-semibold text-gray-300">1. Какой модуль обновляем:</label>
+              <select id="ghTargetModuleSelect" onchange="onIndexHtmlFileSelected()" class="w-full rounded-xl bg-gray-950 border border-white/15 px-2.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                <option value="auto">🤖 Авто-определение по имени файла</option>
+                <option value="index.html">index.html (Каркас интерфейса)</option>
+                <option value="css/style.css">css/style.css (Таблица стилей)</option>
+                <option value="data/schedule.json">data/schedule.json (База расписания)</option>
+                <option value="data/teachers.json">data/teachers.json (Преподаватели БГУ)</option>
+                <option value="data/releases.json">data/releases.json (История релизов)</option>
+                <option value="js/config.js">js/config.js (Конфигурация и утилиты)</option>
+                <option value="js/calendar.js">js/calendar.js (Календарь и сводка дня)</option>
+                <option value="js/teachers.js">js/teachers.js (Справочник преподавателей)</option>
+                <option value="js/admin.js">js/admin.js (Админка и управление парами)</option>
+                <option value="js/github-sync.js">js/github-sync.js (Синхронизация GitHub)</option>
+                <option value="js/ai-scanner.js">js/ai-scanner.js (AI-сканер Gemini)</option>
+                <option value="js/bsu-monitor.js">js/bsu-monitor.js (Мониторинг сайта БГУ)</option>
+                <option value="js/app.js">js/app.js (Точка входа и PWA)</option>
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-[11px] font-semibold text-gray-300">2. Выбери файл модуля (.js, .css, .json, .html):</label>
+              <input type="file" id="ghIndexFileInput" accept=".html,.htm,.js,.css,.json,.md,text/*" onchange="onIndexHtmlFileSelected(event)" class="w-full text-xs text-gray-300 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer bg-gray-950/80 rounded-xl border border-white/10 p-1" />
+            </div>
+          </div>
+
+          <div id="ghIndexFilePreview" class="hidden text-[11px] text-emerald-300 font-mono bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1.5 rounded-lg leading-relaxed"></div>
+
+          <div class="space-y-1">
+            <label class="block text-[11px] font-semibold text-gray-300">3. Описание коммита:</label>
+            <input type="text" id="ghIndexCommitMsg" placeholder="Например: Обновление модуля js/calendar.js" value="Обновление модуля (v0.8)" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500" />
+          </div>
+
+          <button type="button" onclick="pushIndexHtmlToGithub()" id="ghPushIndexBtn" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-95 text-white text-xs font-bold transition shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-1.5">
+            <span>🚀 Запушить выбранный модуль на GitHub</span>
+          </button>
+        </div>
+
+        <!-- БЛОК АВТОПРОВЕРКИ САЙТА ЮРФАКА БГУ И ДЕМО-РЕЖИМА (v0.7) -->
+        <div class="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/35 space-y-2.5 mt-2 shadow-inner">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center text-xs font-bold">🏛️</span>
+              <div>
+                <div class="text-xs font-bold text-white">Мониторинг расписания Юрфака БГУ + Демо-режим (<code>demo.html</code>)</div>
+                <div class="text-[10px] text-gray-400">Автопроверка при входе в админку для 4 курса заочного отделения (Политология, 1Б)</div>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              Gemini API
+            </span>
+          </div>
+
+          <div class="text-[11px] text-gray-300 leading-relaxed">
+            Источник: <a href="https://law.bsu.by/student/rasklad-zanyatkau/pervoe-vysshee-i-parallelnoe-obrazovanie.html" target="_blank" rel="noopener noreferrer" class="text-emerald-300 underline">law.bsu.by (Первое высшее и параллельное образование)</a>. В демо-режиме Gemini создаёт случайное расписание в файле <code>demo.html</code> в репозитории, ждёт его записи, считывает изменения и запрашивает подтверждение (само расписание не меняется, а <code>demo.html</code> удаляется).
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
+            <button type="button" onclick="checkBsuWebsiteSchedule(true)" id="modalCheckBsuBtn" class="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-1.5">
+              <span>🔍 Проверить сайт БГУ сейчас</span>
+            </button>
+            <button type="button" onclick="runDemoAutoUpdateTest()" id="modalRunDemoBtn" class="py-2 px-3 rounded-xl bg-amber-500/25 hover:bg-amber-500/40 text-amber-200 border border-amber-500/40 text-xs font-bold transition flex items-center justify-center gap-1.5">
+              <span>🧪 Демо-режим (demo.html)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ВАРИАНТ 1: АВТО-ПОДБОР МОДЕЛИ GEMINI + СКАНЕР ФОТО -->
+      <div id="syncTabAiBody" class="hidden space-y-3.5">
+        <div class="p-3 rounded-xl bg-purple-500/10 border border-purple-500/30 text-xs text-purple-200 leading-relaxed">
+          ✨ <b>Умное подключение Gemini v0.7:</b> приложение само запрашивает у Google список всех моделей, доступных на твоём ключе, и автоматически переключается на свободную модель, если основной сервер перегружен.
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-gray-300">1. Вставь свой Gemini API Key:</label>
+          <div class="flex items-center gap-1.5">
+            <div class="relative flex-1">
+              <input type="password" id="geminiApiKeyInput" oninput="onApiKeyInput()" placeholder="AIzaSy..." autocomplete="off" spellcheck="false" class="w-full rounded-xl bg-gray-950 border border-white/15 pl-3 pr-9 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-purple-500" />
+              <button type="button" onclick="toggleApiKeyVisibility()" id="toggleKeyEyeBtn" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-sm" title="Показать/скрыть ключ">
+                👁️
+              </button>
+            </div>
+            <button type="button" onclick="testGeminiApiKey()" id="testApiKeyBtn" class="px-3 py-2.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/35 border border-purple-500/40 text-purple-200 text-xs font-bold shrink-0 transition">
+              🔑 Проверить
+            </button>
+          </div>
+          <p class="text-[11px] text-gray-400">Бесплатный ключ берётся на <a href="https://aistudio.google.com/apikey" target="_blank" class="text-purple-300 underline">aistudio.google.com/apikey</a> (сохраняется в браузере автоматически)</p>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-gray-300">2. Что изображено на фото (режим распознавания):</label>
+          <div class="grid grid-cols-3 gap-1.5 bg-gray-950 p-1 rounded-xl border border-white/10">
+            <button type="button" onclick="setAiScanMode('auto')" id="aiScanMode_auto" class="py-2 px-2 rounded-lg text-[11px] font-bold bg-purple-600 text-white transition">
+              🤖 Авто (Умный)
+            </button>
+            <button type="button" onclick="setAiScanMode('classes')" id="aiScanMode_classes" class="py-2 px-2 rounded-lg text-[11px] font-bold text-gray-400 hover:text-white transition">
+              📚 Обычные пары
+            </button>
+            <button type="button" onclick="setAiScanMode('exams')" id="aiScanMode_exams" class="py-2 px-2 rounded-lg text-[11px] font-bold text-gray-400 hover:text-white transition">
+              🎓 Зачёты / Экзамены
+            </button>
+          </div>
+          <p id="aiScanModeHint" class="text-[11px] text-emerald-300/90">
+            🛡️ <b>Защита базы активна:</b> обновление зачётов/экзаменов записывает кабинеты прямо в карточки экзаменов и <b>не удаляет</b> обычные пары и их кабинеты!
+          </p>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-gray-300">3. Выбери фото расписания со стенда:</label>
+          <input type="file" id="schedulePhotoInput" accept="image/*" class="w-full text-xs text-gray-300 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer bg-gray-950/60 rounded-xl border border-white/10 p-1.5" />
+        </div>
+
+        <button onclick="scanPhotoWithGemini()" id="scanPhotoBtn" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs sm:text-sm font-bold transition shadow-lg">
+          🤖 Распознать фото для группы 1Б и обновить расписание
+        </button>
+
+        <button type="button" onclick="manualRecoverFromLogs()" class="w-full py-2.5 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 text-xs font-bold transition flex items-center justify-center gap-1.5">
+          <span>🛠️ Восстановить пары и подтянуть кабинеты экзаменов из логов</span>
+        </button>
+      </div>
+
+      <!-- ВАРИАНТ 2: ВСТАВКА JSON-ПАКЕТА ИЗ ЧАТА GEMINI И УПРАВЛЕНИЕ БАЗОЙ -->
+      <div id="syncTabJsonBody" class="hidden space-y-3">
+        <div class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-xs text-indigo-200 leading-relaxed">
+          💡 <b>Ручной импорт / Бэкап:</b> Вставь готовый JSON-код обновления, экспортируй своё текущее расписание или верни заводскую базу со стенда от 26.10.2026.
+        </div>
+
+        <textarea id="jsonPatchInput" rows="5" placeholder='Пример: {"2026-11-02": [{"start":"14:10","end":"15:30","subject":"Хозяйственное право","control":"экз","teacher":"ст.преп. Гавриленко А.В.","room":"406"}]}' class="w-full rounded-xl bg-gray-950 border border-white/15 p-3 text-xs font-mono text-emerald-300 focus:outline-none focus:border-indigo-500"></textarea>
+
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="applyJsonPatch()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-lg shadow-emerald-600/20">
+              ✅ Применить JSON
+            </button>
+            <button onclick="exportCurrentScheduleJson()" class="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 text-xs font-semibold">
+              📤 Экспорт базы
+            </button>
+          </div>
+          <button onclick="resetToFactorySchedule()" class="px-3 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 text-xs font-semibold">
+            🔄 Сбросить к исходной
+          </button>
+        </div>
+      </div>
+
+      <div id="syncStatusMsg" class="hidden p-3 rounded-xl text-xs font-medium leading-relaxed break-words"></div>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО: ЛОГ ИЗМЕНЕНИЙ В КАЛЕНДАРЕ И ОБНОВЛЕНИЙ ПРИЛОЖЕНИЯ (v0.6) -->
+  <div id="changelogModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="glass-card w-full sm:max-w-xl rounded-t-3xl sm:rounded-2xl border-t sm:border border-white/15 p-4 sm:p-6 space-y-3.5 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center justify-center text-sm font-bold">
+            📜
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-extrabold text-white">Журнал истории и релизов</h3>
+            <p class="text-xs text-gray-400">Правки в расписании и хронология обновлений приложения</p>
+          </div>
+        </div>
+        <button onclick="closeChangelogModal()" class="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 flex items-center justify-center text-lg">✕</button>
+      </div>
+
+      <!-- Переключатель вкладок лога: Расписание vs Обновления приложения -->
+      <div class="grid grid-cols-2 gap-1.5 bg-gray-950 p-1 rounded-xl border border-white/10 shrink-0">
+        <button type="button" onclick="switchChangelogTab('schedule')" id="logTabBtnSchedule" class="py-1.5 px-2 rounded-lg text-xs font-bold bg-indigo-600 text-white transition flex items-center justify-center gap-1.5">
+          <span>📅 Расписание</span>
+          <span id="logBadgeScheduleCount" class="px-1.5 py-0.2 rounded-full bg-black/30 text-[10px] font-mono">0</span>
+        </button>
+        <button type="button" onclick="switchChangelogTab('releases')" id="logTabBtnReleases" class="py-1.5 px-2 rounded-lg text-xs font-bold text-gray-400 hover:text-white transition flex items-center justify-center gap-1.5">
+          <span>🚀 Обновления приложения</span>
+          <span id="logBadgeReleasesCount" class="px-1.5 py-0.2 rounded-full bg-white/10 text-[10px] font-mono">6</span>
+        </button>
+      </div>
+
+      <!-- Панель управления вкладки расписания -->
+      <div id="logScheduleControls" class="flex items-center justify-between gap-2 shrink-0 text-xs">
+        <span class="text-gray-400">Записей в расписании: <b id="changelogTotalCount" class="text-white">0</b></span>
+        <button onclick="clearChangelogHistory()" class="px-2.5 py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 transition text-[11px] font-semibold">
+          🗑️ Очистить журнал
+        </button>
+      </div>
+
+      <!-- Панель статуса вкладки обновлений приложения -->
+      <div id="logReleasesControls" class="hidden flex items-center justify-between gap-2 shrink-0 text-xs">
+        <span class="text-gray-300">Хронология версий приложения (v0.1 – v0.7):</span>
+        <span class="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-semibold">
+          🔒 Не стирается
+        </span>
+      </div>
+
+      <!-- Список записей лога расписания -->
+      <div id="changelogEntriesContainer" class="flex-1 overflow-y-auto space-y-2 pr-1 no-scrollbar min-h-[220px]">
+      </div>
+
+      <!-- Список записей обновлений приложения (v0.1 - v0.6) -->
+      <div id="changelogReleasesContainer" class="hidden flex-1 overflow-y-auto space-y-2.5 pr-1 no-scrollbar min-h-[220px]">
+      </div>
+
+      <div class="pt-2 border-t border-white/10 shrink-0 flex justify-end">
+        <button onclick="closeChangelogModal()" class="px-5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition">
+          Закрыть
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО: ПОДРОБНОЕ ДОСЬЕ ПРЕПОДАВАТЕЛЯ ЮРФАКА БГУ -->
+  <div id="teacherProfileModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="glass-card w-full sm:max-w-2xl rounded-t-3xl sm:rounded-2xl border-t sm:border border-white/15 p-4 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto">
+      <div id="teacherModalContent" class="space-y-4"></div>
+    </div>
+  </div>
+
+
+  <!-- МОДАЛЬНОЕ ОКНО: УСТАНОВКА САЙТА КАК ПРИЛОЖЕНИЯ НА ТЕЛЕФОН (PWA) -->
+  <div id="pwaInstallModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="glass-card w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl border-t sm:border border-indigo-500/35 p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center font-extrabold text-sm text-white shadow-lg shadow-indigo-500/30">
+            1Б
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-white">Установка как приложение</h3>
+            <p class="text-xs text-gray-400">Открывай расписание в 1 клик с иконки на экране</p>
+          </div>
+        </div>
+        <button type="button" onclick="closePwaInstallModal()" class="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 text-gray-300 flex items-center justify-center text-sm">✕</button>
+      </div>
+
+      <div class="p-3 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-xs text-indigo-200 leading-relaxed">
+        ✨ <b>Работает без адресной строки и вкладок:</b> как полноценное приложение на весь экран, сохраняет всё расписание в памяти и открывается даже без интернета!
+      </div>
+
+      <!-- Кнопка быстрой установки (если поддерживается браузером автоматически) -->
+      <button type="button" onclick="triggerPwaPrompt()" id="pwaNativeInstallBtn" class="hidden w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2">
+        <span>📲</span> <span>Установить приложение прямо сейчас</span>
+      </button>
+
+      <!-- Инструкция для Android и iPhone -->
+      <div class="space-y-2.5 text-xs text-gray-200">
+        <div class="p-3 rounded-xl bg-gray-950/80 border border-white/10 space-y-1">
+          <div class="font-bold text-emerald-300 flex items-center gap-1.5">
+            <span>🤖</span> <span>Для Android (Chrome / Яндекс / Samsung):</span>
+          </div>
+          <p class="text-[11px] text-gray-300 leading-relaxed">
+            1. Нажми <b>меню из трёх точек ⋮</b> в правом верхнем углу браузера.<br>
+            2. Выбери пункт <b>«Установить приложение»</b> (или <b>«Добавить на главный экран»</b>).<br>
+            3. Нажми «Установить» — иконка «1Б» появится на рабочем столе телефона!
+          </p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-gray-950/80 border border-white/10 space-y-1">
+          <div class="font-bold text-sky-300 flex items-center gap-1.5">
+            <span>🍏</span> <span>Для iPhone / iPad (Safari):</span>
+          </div>
+          <p class="text-[11px] text-gray-300 leading-relaxed">
+            1. Открой сайт в браузере <b>Safari</b>.<br>
+            2. Нажми кнопку <b>«Поделиться»</b> (квадрат со стрелкой вверх ⎋ внизу экрана).<br>
+            3. Прокрути вниз и нажми <b>«На экран "Домой"»</b> (значок с плюсом ➕).<br>
+            4. Нажми «Добавить» — сайт станет отдельным приложением без рамок Safari!
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end pt-1 border-t border-white/10">
+        <button type="button" onclick="closePwaInstallModal()" class="px-5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold">
+          Понятно
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО: ВХОД В АДМИН-ПАНЕЛЬ (ПАРОЛЬ 4778) -->
+  <div id="adminPasswordModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card w-full max-w-sm rounded-2xl border border-indigo-500/35 p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center justify-center text-sm">🔐</span>
+          <div>
+            <h3 class="text-sm sm:text-base font-extrabold text-white">Вход в админ-панель</h3>
+            <p class="text-[11px] text-gray-400">Доступ к редактированию, сменам и базе</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeAdminPasswordModal()" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/15 text-gray-300 flex items-center justify-center text-sm">✕</button>
+      </div>
+
+      <div class="space-y-2">
+        <label class="block text-xs font-semibold text-gray-300">Введи пароль администратора:</label>
+        <input
+          type="password"
+          id="adminPasswordInput"
+          inputmode="numeric"
+          placeholder="••••"
+          onkeydown="if(event.key==='Enter') submitAdminPassword()"
+          class="w-full rounded-xl bg-gray-950 border border-white/15 px-3.5 py-2.5 text-center font-mono text-base tracking-widest text-white focus:outline-none focus:border-indigo-500"
+        />
+        <div id="adminPasswordError" class="hidden text-xs text-rose-400 font-semibold text-center">
+          ❌ Неверный пароль! Попробуй ещё раз.
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-1">
+        <button type="button" onclick="closeAdminPasswordModal()" class="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-semibold">
+          Отмена
+        </button>
+        <button type="button" onclick="submitAdminPassword()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/25 transition">
+          🔓 Войти
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- МОДАЛЬНОЕ ОКНО: МОДУЛЬНАЯ АРХИТЕКТУРА (13 ФАЙЛОВ) И АВТО-ДЕПЛОЙ В НОВЫЙ РЕПОЗИТОРИЙ GITHUB -->
+  <div id="modularExplorerModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="glass-card w-full sm:max-w-4xl rounded-t-3xl sm:rounded-2xl border-t sm:border border-emerald-500/40 p-4 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto shadow-2xl">
+      <div class="flex items-start justify-between gap-3 border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center text-base font-bold shrink-0">
+            🧩
+          </div>
+          <div>
+            <h3 class="text-sm sm:text-lg font-extrabold text-white">Модульная архитектура v0.8 (13 независимых блоков)</h3>
+            <p class="text-xs text-gray-400">Разверни структуру в новом репозитории GitHub в 1 клик или скачай любой модуль отдельно</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeModularExplorerModal()" class="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 text-gray-300 flex items-center justify-center text-lg shrink-0">✕</button>
+      </div>
+
+      <!-- БЛОК АВТО-РАЗВЁРТЫВАНИЯ ВСЕХ 13 ФАЙЛОВ В НОВЫЙ РЕПОЗИТОРИЙ -->
+      <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-emerald-950/60 via-indigo-950/60 to-purple-950/50 border border-emerald-500/40 space-y-3">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div class="text-xs sm:text-sm font-extrabold text-white flex items-center gap-1.5">
+            <span>🚀</span>
+            <span>Авто-развёртывание всех 13 файлов в новый репозиторий GitHub в 1 клик</span>
+          </div>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            GitHub REST API
+          </span>
+        </div>
+
+        <p class="text-xs text-gray-300 leading-relaxed">
+          Создай на GitHub новый репозиторий (например, <code>raspisanie-v2</code> с галочкой <b>Add a README file</b>, чтобы создалась ветка <code>main</code>), впиши его ниже вместе со своим токеном и нажми кнопку — приложение само создаст папки <code>css/</code>, <code>data/</code>, <code>js/</code> и загрузит все 13 модулей!
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+          <div class="sm:col-span-5">
+            <label class="block text-[11px] font-semibold text-gray-300 mb-1">Новый репозиторий (<code>владелец/имя-репо</code>):</label>
+            <input type="text" id="modDeployRepoInput" placeholder="Например: ivanov/raspisanie-v2" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-[11px] font-semibold text-gray-300 mb-1">Ветка:</label>
+            <input type="text" id="modDeployBranchInput" value="main" placeholder="main" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div class="sm:col-span-5">
+            <label class="block text-[11px] font-semibold text-gray-300 mb-1">GitHub Personal Access Token:</label>
+            <input type="password" id="modDeployTokenInput" placeholder="ghp_... или github_pat_..." autocomplete="off" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+        </div>
+
+        <div class="w-full h-1.5 bg-gray-900 rounded-full overflow-hidden">
+          <div id="modDeployProgressBar" class="h-full bg-gradient-to-r from-emerald-500 via-indigo-500 to-purple-500 transition-all duration-300" style="width: 0%"></div>
+        </div>
+
+        <div id="modDeployStatusBox" class="hidden p-2.5 rounded-xl bg-gray-950/90 border border-white/10 text-xs leading-relaxed"></div>
+
+        <button type="button" onclick="deployAllModulesToGithub()" id="modDeployAllBtn" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white text-xs sm:text-sm font-bold shadow-lg shadow-emerald-600/25 transition flex items-center justify-center gap-2">
+          <span>🚀 Развернуть все 13 модульных файлов в репозиторий GitHub</span>
+        </button>
+      </div>
+
+      <!-- СПИСОК ВСЕХ 13 МОДУЛЕЙ -->
+      <div class="space-y-2">
+        <div class="text-xs font-bold uppercase tracking-wider text-gray-400">
+          📂 Структура проекта (нажми «👁️ Код» для просмотра или «💾 Скачать» для сохранения отдельного файла):
+        </div>
+        <div id="modularFilesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+      </div>
+
+      <!-- ПРОСМОТР КОДА ВЫБРАННОГО МОДУЛЯ -->
+      <div id="moduleCodePreviewBox" class="hidden space-y-2 pt-2 border-t border-white/10">
+        <div class="flex items-center justify-between gap-2">
+          <span id="moduleCodePreviewTitle" class="text-xs font-mono font-bold text-indigo-300"></span>
+          <button type="button" onclick="copyTextFallback(document.getElementById('moduleCodePreviewTextarea').value); showToast('📋 Код модуля скопирован');" class="px-3 py-1 rounded-lg bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 hover:text-white text-xs font-bold transition">
+            📋 Скопировать код модуля
+          </button>
+        </div>
+        <textarea id="moduleCodePreviewTextarea" readonly rows="10" class="w-full rounded-xl bg-gray-950 border border-white/15 p-3 text-[11px] font-mono text-emerald-300 focus:outline-none"></textarea>
+      </div>
+
+      <div class="pt-2 border-t border-white/10 flex justify-end">
+        <button type="button" onclick="closeModularExplorerModal()" class="px-5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition">
+          Закрыть
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДУЛЬНЫЕ СКРИПТЫ ПРИЛОЖЕНИЯ (v0.8) -->
+  <script src="js/config.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/teachers.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/github-sync.js"></script>
+  <script src="js/ai-scanner.js"></script>
+  <script src="js/bsu-monitor.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
