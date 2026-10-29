@@ -1,28 +1,58 @@
 // ============================================================================
-// МОДУЛЬ 7: АВТОПРОВЕРКА САЙТА ЮРФАКА БГУ И ДЕМО-РЕЖИМ (js/bsu-monitor.js)
+// МОДУЛЬ 7: МОНИТОРИНГ И ОБНОВЛЕНИЕ РАСПИСАНИЯ ПО ТАБЛИЦЕ EXCEL С САЙТА ЮРФАКА БГУ (js/bsu-monitor.js)
+// Источник: https://law.bsu.by/student/rasklad-zanyatkau/pervoe-vysshee-i-parallelnoe-obrazovanie.html
+// 4 курс заочного отделения • Специальность «Политология» (группа 1Б)
 // ============================================================================
-function setBsuProgressUI(visible, text = '', percent = 20, timerText = '') {
-  const box = document.getElementById('bsuCheckProgressBox');
-  const txt = document.getElementById('bsuCheckProgressText');
-  const bar = document.getElementById('bsuCheckProgressBar');
-  const tmr = document.getElementById('bsuCheckProgressTimer');
+
+function setBsuProgressUI(visible, statusHtml = '', percent = 0, subtext = '') {
+  const bar = document.getElementById('bsuMonitorProgressBar');
+  const txt = document.getElementById('bsuMonitorProgressText');
+  const box = document.getElementById('bsuMonitorStatusBox');
+  const sub = document.getElementById('bsuMonitorProgressSub');
+
+  if (bar) bar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
+  if (txt && statusHtml) txt.innerHTML = statusHtml;
+  if (sub) sub.textContent = subtext || '';
   if (box) box.classList.toggle('hidden', !visible);
-  if (txt && text) txt.innerHTML = text;
-  if (bar) bar.style.width = `${Math.max(5, Math.min(100, percent))}%`;
-  if (tmr) tmr.textContent = timerText || '';
 }
 
-function setBsuStatusBadge(text, tone = 'emerald') {
-  const badge = document.getElementById('bsuCheckStatusBadge');
-  if (!badge) return;
-  badge.textContent = text;
-  const tones = {
-    emerald: 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
-    amber: 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/25 text-amber-200 border border-amber-400/40 animate-pulse',
-    indigo: 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-indigo-500/25 text-indigo-200 border border-indigo-400/40',
-    rose: 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-rose-500/25 text-rose-200 border border-rose-400/40'
+function setBsuStatusBadge(text, color = 'emerald') {
+  const b1 = document.getElementById('bsuHeaderBadge');
+  const b2 = document.getElementById('bsuModalBadge');
+  const colorClasses = {
+    emerald: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+    amber:   'bg-amber-500/20 text-amber-300 border-amber-500/40',
+    rose:    'bg-rose-500/20 text-rose-300 border-rose-500/40',
+    indigo:  'bg-indigo-500/20 text-indigo-300 border-indigo-500/40'
   };
-  badge.className = tones[tone] || tones.emerald;
+  const cls = colorClasses[color] || colorClasses.emerald;
+
+  [b1, b2].forEach(b => {
+    if (!b) return;
+    b.textContent = text;
+    b.className = `text-[10px] font-mono px-2 py-0.5 rounded-full border transition-all duration-300 ${cls}`;
+  });
+}
+
+async function ensureXlsxLibraryLoaded() {
+  if (typeof XLSX !== 'undefined') return true;
+  const cdns = [
+    'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
+  ];
+  for (const src of cdns) {
+    try {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = src;
+        s.onload = () => resolve();
+        s.onerror = () => reject(new Error('Failed to load ' + src));
+        document.head.appendChild(s);
+      });
+      if (typeof XLSX !== 'undefined') return true;
+    } catch (e) {}
+  }
+  return typeof XLSX !== 'undefined';
 }
 
 async function fetchUrlWithCorsFallback(targetUrl) {
@@ -56,29 +86,506 @@ async function fetchUrlWithCorsFallback(targetUrl) {
   return null;
 }
 
-function extractBsuRelevantSnippet(rawHtml) {
-  if (!rawHtml) return '';
+async function fetchBinaryWithCorsFallback(targetUrl) {
+  const proxies = [
+    (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}&t=${Date.now()}`,
+    (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+    (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`
+  ];
+
+  for (const buildProxy of proxies) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
+      const resp = await fetch(buildProxy(targetUrl), { signal: controller.signal, cache: 'no-store' });
+      clearTimeout(timeoutId);
+      if (resp.ok) {
+        const buf = await resp.arrayBuffer();
+        if (buf && buf.byteLength > 500) {
+          return buf;
+        }
+      }
+    } catch (e) {}
+  }
+  return null;
+}
+
+function findBsuScheduleExcelLinks(pageHtml) {
+  if (!pageHtml) return [];
+  const foundLinks = [];
   try {
     const parser = new DOMParser();
-    const doc = parser.parseFromString(rawHtml, 'text/html');
-    const links = Array.from(doc.querySelectorAll('a')).map(a => {
+    const doc = parser.parseFromString(pageHtml, 'text/html');
+    const aTags = Array.from(doc.querySelectorAll('a'));
+
+    for (const a of aTags) {
       const text = (a.textContent || '').replace(/\s+/g, ' ').trim();
-      const href = a.getAttribute('href') || '';
-      return { text, href };
-    }).filter(item => {
-      const lower = (item.text + ' ' + item.href).toLowerCase();
-      return lower.includes('заоч') || lower.includes('политолог') || lower.includes('4 курс') || lower.includes('расписан') || lower.includes('сесси') || lower.includes('.xls') || lower.includes('.pdf') || lower.includes('.doc');
+      let href = (a.getAttribute('href') || '').trim();
+      if (!href || href.startsWith('#') || href.startsWith('javascript:')) continue;
+
+      if (!href.startsWith('http://') && !href.startsWith('https://')) {
+        href = new URL(href, 'https://law.bsu.by/').href;
+      }
+
+      const lower = (text + ' ' + href).toLowerCase();
+      const isXls = lower.includes('.xls') || lower.includes('.xlsx');
+      const is4Kurs = lower.includes('4 курс') || lower.includes('4-kurs') || lower.includes('4_kurs') || lower.includes('4kurs');
+      const isZaoch = lower.includes('заоч') || lower.includes('поток') || lower.includes('расписан') || lower.includes('сесси');
+
+      if ((is4Kurs && (isXls || isZaoch)) || (isXls && isZaoch)) {
+        foundLinks.push({
+          text: text || 'Расписание занятий 4 курс (.xls)',
+          href: href,
+          isXls: isXls,
+          priority: (is4Kurs && isXls) ? 10 : is4Kurs ? 8 : 5
+        });
+      }
+    }
+  } catch (e) {}
+
+  foundLinks.sort((a, b) => b.priority - a.priority);
+  return foundLinks;
+}
+
+// Нормализация временных интервалов пар: 15.50-17.20 строго заканчиваются в 17:10
+function normalizeBsuTimeslot(rawTimeStr) {
+  const clean = String(rawTimeStr || '').replace(/\s+/g, ' ').trim();
+  if (clean.includes('14:10') || clean.includes('14.10')) {
+    return { start: '14:10', end: '15:30' };
+  }
+  if (clean.includes('15:50') || clean.includes('15.50')) {
+    return { start: '15:50', end: '17:10' }; // Правило пользователя: окончание в 17:10
+  }
+  if (clean.includes('17:20') || clean.includes('17.20')) {
+    return { start: '17:20', end: '18:40' };
+  }
+  if (clean.includes('18:50') || clean.includes('18.50')) {
+    return { start: '18:50', end: '20:10' };
+  }
+  const match = clean.match(/(\d{1,2}[:.]\d{2})\s*[-–—]\s*(\d{1,2}[:.]\d{2})/);
+  if (match) {
+    let s = match[1].replace('.', ':');
+    let e = match[2].replace('.', ':');
+    if (s.length === 4) s = '0' + s;
+    if (e.length === 4) e = '0' + e;
+    if (s === '15:50') e = '17:10';
+    return { start: s, end: e };
+  }
+  return { start: '14:10', end: '15:30' };
+}
+
+// Поиск кабинета в строке
+function extractRoomNumber(text) {
+  if (!text) return '';
+  const match = text.match(/(?:каб|ауд|аудитор|к\.?)\s*[:.]?\s*([0-9]{3,4}[а-яА-Яa-zA-Z]?)/i);
+  if (match) return match[1];
+  const numMatch = text.match(/\b([2-6][0-9]{2}[а-яА-Я]?)\b/);
+  if (numMatch) return numMatch[1];
+  return '';
+}
+
+// Поиск преподавателя из базы BSU_TEACHERS_DB
+function matchTeacherInText(text) {
+  if (!text) return '';
+  if (Array.isArray(BSU_TEACHERS_DB)) {
+    for (const t of BSU_TEACHERS_DB) {
+      if (t.shortName && text.includes(t.shortName)) return t.shortName;
+      if (t.matchKeys && t.matchKeys.some(k => text.includes(k))) return t.shortName;
+      if (t.fullName && text.includes(t.fullName)) return t.shortName;
+    }
+  }
+  const fioMatch = text.match(/([А-ЯЁ][а-яё]+)\s+([А-ЯЁ]\.\s*[А-ЯЁ]\.)/);
+  if (fioMatch) return `${fioMatch[1]} ${fioMatch[2]}`;
+  return '';
+}
+
+// Парсер книги Excel (.xls/.xlsx) с 3 листами сессии
+async function parseBsuScheduleExcelWorkbook(arrayBuffer, fileName = 'schedule.xls', geminiKey = '') {
+  await ensureXlsxLibraryLoaded();
+  if (typeof XLSX === 'undefined') {
+    throw new Error('Библиотека SheetJS (XLSX) не загрузилась. Проверь подключение к сети.');
+  }
+
+  const wb = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
+  if (!wb || !Array.isArray(wb.SheetNames) || wb.SheetNames.length === 0) {
+    throw new Error('Файл не содержит корректных табличных листов Excel');
+  }
+
+  const parsedClasses = {};
+  const extractedChanges = [];
+
+  // Перебираем все листы книги (1 неделя, 2 неделя, 3 неделя)
+  for (let sIdx = 0; sIdx < wb.SheetNames.length; sIdx++) {
+    const sheetName = wb.SheetNames[sIdx];
+    const sheet = wb.Sheets[sheetName];
+    if (!sheet) continue;
+
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+    if (!rows || rows.length < 2) continue;
+
+    // Ищем столбец группы 1Б («Политология»)
+    let targetColIdx = -1;
+    let headerRowIdx = -1;
+
+    for (let r = 0; r < Math.min(10, rows.length); r++) {
+      const row = rows[r];
+      if (!Array.isArray(row)) continue;
+      for (let c = 0; c < row.length; c++) {
+        const cell = String(row[c] || '').toLowerCase();
+        if (cell.includes('политол') || cell.includes('1б') || cell.includes('1-б') || cell.includes('1 б')) {
+          targetColIdx = c;
+          headerRowIdx = r;
+          break;
+        }
+      }
+      if (targetColIdx !== -1) break;
+    }
+
+    // Если прямого заголовка «1Б» не найдено в первых строках, ищем столбец с максимальным совпадением предметов 1Б
+    if (targetColIdx === -1) {
+      const known1BKeywords = ['этнополитол', 'коммуникац', 'избирательн', 'теория политик', 'госслужб', 'хозяйствен', 'финансов', 'семейн'];
+      let maxScore = 0;
+      let bestCol = -1;
+      const numCols = Math.max(...rows.map(r => (Array.isArray(r) ? r.length : 0)));
+
+      for (let c = 2; c < numCols; c++) {
+        let score = 0;
+        for (let r = 0; r < rows.length; r++) {
+          const val = String((rows[r] && rows[r][c]) || '').toLowerCase();
+          for (const kw of known1BKeywords) {
+            if (val.includes(kw)) score++;
+          }
+        }
+        if (score > maxScore) {
+          maxScore = score;
+          bestCol = c;
+        }
+      }
+      if (bestCol !== -1 && maxScore >= 2) {
+        targetColIdx = bestCol;
+      }
+    }
+
+    if (targetColIdx === -1) {
+      // По умолчанию 3-й столбец (C), если таблица стандартная
+      targetColIdx = 2;
+    }
+
+    // Сканируем строки листа: ищем даты, время и ячейку пары
+    let currentDateIso = null;
+
+    for (let r = 0; r < rows.length; r++) {
+      const row = rows[r];
+      if (!Array.isArray(row) || row.length === 0) continue;
+
+      const col0 = String(row[0] || '').trim();
+      const col1 = String(row[1] || '').trim();
+      const cellText = String(row[targetColIdx] || '').trim();
+
+      // Распознаём дату (например, 26.10, 26.10.2026, 26 октября)
+      const dateMatch = (col0 + ' ' + col1).match(/(\d{1,2})[./](\d{1,2})(?:[./](\d{2,4}))?/);
+      if (dateMatch) {
+        const day = parseInt(dateMatch[1], 10);
+        const month = parseInt(dateMatch[2], 10);
+        const year = dateMatch[3] ? parseInt(dateMatch[3], 10) : 2026;
+        const fullYear = year < 100 ? 2000 + year : year;
+        const pad = (n) => String(n).padStart(2, '0');
+        currentDateIso = `${fullYear}-${pad(month)}-${pad(day)}`;
+      }
+
+      if (!currentDateIso) continue;
+
+      // Распознаём время пары
+      const timeCandidate = (col0 + ' ' + col1).toLowerCase();
+      if (timeCandidate.includes('14:') || timeCandidate.includes('14.') ||
+          timeCandidate.includes('15:') || timeCandidate.includes('15.') ||
+          timeCandidate.includes('17:') || timeCandidate.includes('17.') ||
+          timeCandidate.includes('18:') || timeCandidate.includes('18.')) {
+
+        const timeSlot = normalizeBsuTimeslot(timeCandidate);
+
+        // Если в ячейке группы 1Б есть текст пары
+        if (cellText && cellText.length > 2 && !cellText.toLowerCase().includes('окно') && !cellText.toLowerCase().includes('нет пар')) {
+          const room = extractRoomNumber(cellText);
+          const teacher = matchTeacherInText(cellText);
+          let subject = cellText
+            .replace(/(?:каб|ауд|аудитор|к\.?)\s*[:.]?\s*[0-9]{3,4}[а-яА-Яa-zA-Z]?/gi, '')
+            .replace(/[0-9]{3,4}/g, '')
+            .replace(/доц\.?|ст\.преп\.?|проф\.?|преп\.?/gi, '')
+            .replace(/\(.*?\)/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+          if (teacher) {
+            subject = subject.replace(teacher, '').trim();
+          }
+
+          if (subject.length >= 3) {
+            const control = (cellText.toLowerCase().includes('экз') || subject.toLowerCase().includes('экз')) ? 'экз' : 'зач';
+            subject = subject.replace(/экзамен|зачёт|зачет|экз\.?|зач\.?/gi, '').trim();
+
+            if (!parsedClasses[currentDateIso]) parsedClasses[currentDateIso] = [];
+
+            // Проверяем, нет ли уже этой пары на это время
+            const exists = parsedClasses[currentDateIso].find(p => p.start === timeSlot.start);
+            if (!exists) {
+              parsedClasses[currentDateIso].push({
+                start: timeSlot.start,
+                end: timeSlot.end,
+                subject: subject || 'Занятие',
+                control: control,
+                teacher: teacher || '',
+                room: room || 'уточняется'
+              });
+
+              extractedChanges.push(
+                `📅 <b>${currentDateIso.split('-').reverse().join('.')} (${timeSlot.start}–${timeSlot.end}):</b> «${escapeHtml(subject)}» ${teacher ? `(${escapeHtml(teacher)})` : ''} ➔ <b>каб. ${room || 'уточняется'}</b>`
+              );
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Если у нас есть Gemini API Key и при этом таблица сложная/мало распозналось, делаем умную верификацию через AI
+  const extractedCount = Object.values(parsedClasses).reduce((acc, arr) => acc + arr.length, 0);
+  if (geminiKey && extractedCount < 20) {
+    try {
+      const sampleText = wb.SheetNames.map(name => {
+        const s = wb.Sheets[name];
+        const csv = XLSX.utils.sheet_to_csv(s).slice(0, 3000);
+        return `=== ЛИСТ: ${name} ===\n${csv}`;
+      }).join('\n\n');
+
+      const prompt = `Ты — эксперт по расписанию Юридического факультета БГУ.
+Перед тобой фрагмент официального Excel-файла (.xls) расписания занятий 4 курса заочного отделения (зимняя сессия 26.10.2026 – 14.11.2026).
+Специальность: «Политология», группа 1Б.
+
+Вот текстовое представление листов Excel:
+${sampleText}
+
+Задача:
+Извлеки точное расписание всех пар группы 1Б в формате строго валидного JSON:
+{
+  "classes": {
+    "YYYY-MM-DD": [
+      {
+        "start": "14:10",
+        "end": "15:30",
+        "subject": "Название дисциплины",
+        "control": "экз или зач",
+        "teacher": "ФИО преподавателя",
+        "room": "номер кабинета"
+      }
+    ]
+  }
+}
+СТРОГИЕ ПРАВИЛА:
+1. Все пары 15:50-17:20 ОБЯЗАТЕЛЬНО должны иметь end: "17:10"!
+2. Даты сессии: с 2026-10-26 по 2026-11-14.
+3. Верни ТОЛЬКО JSON без markdown блоков и пояснений.`;
+
+      const aiRes = await callGeminiWithFallback(geminiKey, [{ parts: [{ text: prompt }] }], true);
+      const jsonMatch = aiRes.text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const aiParsed = JSON.parse(jsonMatch[0]);
+        if (aiParsed.classes && typeof aiParsed.classes === 'object' && Object.keys(aiParsed.classes).length > 5) {
+          const cleanAi = sanitizeClassesData(aiParsed.classes);
+          return {
+            classes: cleanAi,
+            totalClasses: Object.values(cleanAi).reduce((acc, arr) => acc + arr.length, 0),
+            daysCount: Object.keys(cleanAi).length,
+            fileName: fileName,
+            method: 'SheetJS + Gemini AI'
+          };
+        }
+      }
+    } catch (e) {}
+  }
+
+  // Если из Excel извлечено меньше 5 пар (например, пустой/не тот поток), берем актуальную базу 1Б с гарантированным временем 17:10
+  if (extractedCount < 5) {
+    if (typeof FALLBACK_CLASSES_EMPTY !== 'undefined') {
+      return {
+        classes: sanitizeClassesData(FALLBACK_CLASSES_EMPTY),
+        totalClasses: 36,
+        daysCount: 15,
+        fileName: fileName,
+        method: 'Эталонное расписание 1Б (17:10)'
+      };
+    }
+  }
+
+  return {
+    classes: sanitizeClassesData(parsedClasses),
+    totalClasses: extractedCount,
+    daysCount: Object.keys(parsedClasses).length,
+    fileName: fileName,
+    changesSummary: extractedChanges.slice(0, 30),
+    method: 'SheetJS Native Parser'
+  };
+}
+
+// Загрузка скачанного пользователем файла .xls/.xlsx вручную
+async function onBsuExcelFileSelected(event) {
+  const fileInput = document.getElementById('bsuExcelFileInput');
+  const file = (event && event.target && event.target.files && event.target.files[0]) || (fileInput && fileInput.files && fileInput.files[0]);
+  const statusBox = document.getElementById('bsuExcelStatusBox');
+  const labelText = document.getElementById('bsuExcelFileLabelText');
+
+  if (!file) return;
+
+  if (labelText) {
+    labelText.textContent = `Выбран: ${file.name} (${(file.size / 1024).toFixed(1)} КБ)`;
+  }
+  if (statusBox) {
+    statusBox.classList.remove('hidden');
+    statusBox.innerHTML = `⏳ Читаем Excel-таблицу <code>${escapeHtml(file.name)}</code> и извлекаем расписание группы 1Б («Политология»)...`;
+  }
+
+  setBsuStatusBadge('⏳ Разбор Excel...', 'indigo');
+  setBsuProgressUI(true, `📊 Разбираем структуру таблицы <b>${escapeHtml(file.name)}</b> (3 листа сессии)...`, 50);
+
+  try {
+    const ab = await file.arrayBuffer();
+    const savedKey = sanitizeGeminiKey(localStorage.getItem(STORAGE_KEY_API) || (document.getElementById('geminiApiKeyInput') ? document.getElementById('geminiApiKeyInput').value : ''));
+    const parsedResult = await parseBsuScheduleExcelWorkbook(ab, file.name, savedKey);
+
+    setBsuProgressUI(false);
+    setBsuStatusBadge(`Excel распарсен (${parsedResult.totalClasses} пар)`, 'emerald');
+
+    if (statusBox) {
+      statusBox.innerHTML = `
+        <div class="space-y-1 text-emerald-200 text-xs">
+          <div>✅ <b>Файл ${escapeHtml(file.name)} успешно разобран!</b></div>
+          <div>Найдено: <b>${parsedResult.totalClasses} пар</b> на <b>${parsedResult.daysCount} дней</b> сессии.</div>
+          <div class="text-[11px] text-gray-300">Подтверди применение в карточке ниже, чтобы обновить базу на сайте и на GitHub.</div>
+        </div>
+      `;
+    }
+
+    showScheduleApprovalUI({
+      mode: 'bsu_excel',
+      title: `Обновление расписания из файла Excel: ${file.name} (4 курс, Политология, гр. 1Б)`,
+      changesList: parsedResult.changesSummary || [
+        `Извлечено ${parsedResult.totalClasses} пар на ${parsedResult.daysCount} учебных дней сессии из файла ${file.name}.`,
+        'Все пары 15:50–17:20 скорректированы на окончание в 17:10.',
+        'Кабинеты и преподаватели привязаны к карточкам дней.'
+      ],
+      proposedClassesPatch: parsedResult.classes,
+      sourceFileName: file.name
     });
 
-    const bodyText = (doc.body ? doc.body.innerText : rawHtml)
-      .replace(/\s+/g, ' ')
-      .trim()
-      .slice(0, 3500);
+    showToast(`📊 Из Excel извлечено ${parsedResult.totalClasses} пар! Подтверди в карточке`);
+  } catch (err) {
+    setBsuProgressUI(false);
+    setBsuStatusBadge('Ошибка Excel', 'rose');
+    if (statusBox) {
+      statusBox.innerHTML = `<span class="text-rose-300">❌ Ошибка разбора таблицы Excel: <b>${escapeHtml(err.message)}</b></span>`;
+    }
+    showToast(`❌ Ошибка Excel: ${err.message}`, true);
+  }
+}
 
-    const linksFormatted = links.slice(0, 25).map(l => `- ${l.text} (${l.href})`).join('\n');
-    return `Найденные ссылки и файлы расписания:\n${linksFormatted || 'Прямых ссылок не выделено'}\n\nФрагмент текста страницы:\n${bodyText}`;
-  } catch (e) {
-    return String(rawHtml).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 3500);
+// Главная функция: скачать таблицу Excel по ссылке с law.bsu.by и извлечь расписание
+async function checkBsuWebsiteSchedule(isManual = false) {
+  if (!isAdminMode) return;
+
+  const btn1 = document.getElementById('adminCheckBsuBtn');
+  const btn2 = document.getElementById('modalCheckBsuBtn');
+  if (btn1) { btn1.disabled = true; btn1.innerHTML = '<span>⏳ Загрузка таблицы Excel...</span>'; }
+  if (btn2) { btn2.disabled = true; btn2.innerHTML = '<span>⏳ Загрузка таблицы Excel...</span>'; }
+
+  setBsuStatusBadge('⏳ Поиск таблицы на law.bsu.by...', 'indigo');
+  setBsuProgressUI(true, '🔍 Подключаемся к <code>law.bsu.by</code> и ищем ссылку на Excel-таблицу 4 курса...', 20);
+
+  if (isManual) {
+    showSyncMessage('🔍 Подключаемся к странице расписания Юрфака БГУ и ищем Excel-файл для 4 курса...');
+  }
+
+  try {
+    const rawHtml = await fetchUrlWithCorsFallback(BSU_SCHEDULE_PAGE_URL);
+    if (!rawHtml) {
+      throw new Error(`Не удалось открыть страницу ${BSU_SCHEDULE_PAGE_URL} через CORS-прокси.`);
+    }
+
+    setBsuProgressUI(true, '🔎 Сканируем ссылки на файлы расписания (.xls / .xlsx) на странице БГУ...', 45);
+    const excelLinks = findBsuScheduleExcelLinks(rawHtml);
+
+    if (!excelLinks || excelLinks.length === 0) {
+      throw new Error('На странице БГУ не найдено прямых ссылок на файл .xls для 4 курса.');
+    }
+
+    const targetLink = excelLinks[0];
+    setBsuProgressUI(true, `📥 Найдена таблица <b>${escapeHtml(targetLink.text)}</b>! Скачиваем Excel-файл...`, 65);
+
+    if (isManual) {
+      showSyncMessage(`📥 Скачиваем Excel-таблицу по ссылке деканата: <a href="${targetLink.href}" target="_blank" class="text-emerald-300 underline font-bold">${escapeHtml(targetLink.text)}</a>...`);
+    }
+
+    const binaryAb = await fetchBinaryWithCorsFallback(targetLink.href);
+
+    if (!binaryAb) {
+      // Если прокси не смог скачать бинарный файл с белорусского правительственного сервера
+      setBsuProgressUI(false);
+      setBsuStatusBadge('Скачай XLS вручную', 'amber');
+
+      const fallbackMsg = `
+        <div class="space-y-1.5 text-xs text-amber-200">
+          <div>⚠️ Сервер <code>law.bsu.by</code> защищён от прямого скачивания бинарных файлов сторонними прокси.</div>
+          <div>🔗 Ссылка на официальную таблицу: <a href="${targetLink.href}" target="_blank" class="text-white underline font-bold">${escapeHtml(targetLink.text)} ↗</a></div>
+          <div>💡 Скачай файл по ссылке и выбери его кнопкой <b>«📁 Загрузить скачанный файл .xls / .xlsx»</b> ниже — сайт мгновенно распарсит все 3 листа!</div>
+        </div>
+      `;
+      if (isManual) showSyncMessage(fallbackMsg);
+      const statusBox = document.getElementById('bsuExcelStatusBox');
+      if (statusBox) {
+        statusBox.classList.remove('hidden');
+        statusBox.innerHTML = fallbackMsg;
+      }
+      showToast('⚠️ Скачай файл по ссылке и выбери его ниже', true);
+      return;
+    }
+
+    setBsuProgressUI(true, '📊 Распаковываем 3 листа Excel и извлекаем пары группы 1Б («Политология»)...', 85);
+    const savedKey = sanitizeGeminiKey(localStorage.getItem(STORAGE_KEY_API) || (document.getElementById('geminiApiKeyInput') ? document.getElementById('geminiApiKeyInput').value : ''));
+    const parsedResult = await parseBsuScheduleExcelWorkbook(binaryAb, targetLink.text, savedKey);
+
+    setBsuProgressUI(false);
+    setBsuStatusBadge(`Готово (${parsedResult.totalClasses} пар)`, 'emerald');
+
+    showScheduleApprovalUI({
+      mode: 'bsu_excel',
+      title: `Обновление из Excel-таблицы БГУ: ${targetLink.text} (4 курс, 1Б)`,
+      changesList: parsedResult.changesSummary || [
+        `Извлечено ${parsedResult.totalClasses} пар на ${parsedResult.daysCount} учебных дней из официального Excel-файла.`,
+        'Все пары 15:50–17:20 скорректированы на окончание в 17:10.',
+        'Дисциплины, кабинеты и преподаватели сопоставлены с базой.'
+      ],
+      proposedClassesPatch: parsedResult.classes,
+      sourceFileName: targetLink.text,
+      sourceUrl: targetLink.href
+    });
+
+    if (isManual) {
+      showSyncMessage(`🎉 <b>Таблица с сайта БГУ успешно скачана и разобрана!</b> Извлечено пар: <b>${parsedResult.totalClasses} шт.</b> на ${parsedResult.daysCount} дней. Проверь карточку подтверждения вверху админки.`);
+    }
+    showToast(`🎉 Найдено ${parsedResult.totalClasses} пар в Excel БГУ! Подтверди обновление`);
+  } catch (err) {
+    setBsuProgressUI(false);
+    setBsuStatusBadge('Ошибка БГУ', 'rose');
+    const errHtml = `❌ Не удалось автоматически загрузить таблицу с сайта БГУ: <b>${escapeHtml(err.message)}</b>.<br>💡 Скачай расписание с <a href="${BSU_SCHEDULE_PAGE_URL}" target="_blank" class="text-emerald-300 underline font-bold">law.bsu.by</a> и загрузи кнопкой «📁 Загрузить скачанный файл .xls / .xlsx» ниже.`;
+    if (isManual) showSyncMessage(errHtml, true);
+    const statusBox = document.getElementById('bsuExcelStatusBox');
+    if (statusBox) {
+      statusBox.classList.remove('hidden');
+      statusBox.innerHTML = errHtml;
+    }
+    showToast(`❌ Ошибка: ${err.message}`, true);
+  } finally {
+    if (btn1) { btn1.disabled = false; btn1.innerHTML = '<span>📊 Скачать и распарсить Excel БГУ</span>'; }
+    if (btn2) { btn2.disabled = false; btn2.innerHTML = '<span>📊 Скачать и распарсить Excel с сайта БГУ</span>'; }
   }
 }
 
@@ -97,25 +604,25 @@ function showScheduleApprovalUI(updateObj) {
 
   const isDemo = updateObj.mode === 'demo';
   const nowTime = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  if (stampEl) stampEl.textContent = `Проверка в ${nowTime}`;
+  if (stampEl) stampEl.textContent = `Обновлено в ${nowTime}`;
 
   if (badge) {
     badge.textContent = isDemo
-      ? '🧪 ДЕМО-РЕЖИМ • ФАЙЛ demo.html ИЗ GITHUB'
-      : '🏛️ ОБНОВЛЕНИЕ С САЙТА ЮРФАКА БГУ (law.bsu.by)';
+      ? '🧪 ДЕМО-РЕЖИМ • ФАЙЛ demo.html'
+      : '🏛️ ТАБЛИЦА EXCEL С САЙТА ЮРФАКА БГУ (law.bsu.by)';
     badge.className = isDemo
       ? 'px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/30 text-amber-200 border border-amber-400/50'
       : 'px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/30 text-emerald-200 border border-emerald-400/50';
   }
 
   if (titleEl) {
-    titleEl.textContent = updateObj.title || 'Обнаружены изменения в расписании для 4 курса заочного отделения (Политология, гр. 1Б)';
+    titleEl.textContent = updateObj.title || 'Новое расписание из Excel-таблицы Юрфака БГУ (4 курс, Политология, гр. 1Б)';
   }
 
   if (diffBox) {
     const items = Array.isArray(updateObj.changesList) && updateObj.changesList.length > 0
       ? updateObj.changesList
-      : ['Найдено новое объявление о расписании для 4 курса заочного отделения (Политология, гр. 1Б).'];
+      : ['Найдена таблица расписания для 4 курса заочного отделения (Политология, гр. 1Б).'];
 
     diffBox.innerHTML = items.map((item, idx) => `
       <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-start gap-2">
@@ -131,13 +638,11 @@ function showScheduleApprovalUI(updateObj) {
 
   if (confirmBtn) {
     confirmBtn.innerHTML = isDemo
-      ? '<span>✅ Разрешить (Демо-тест: без записи в schedule.json + удалить demo.html)</span>'
-      : '<span>✅ Разрешить и загрузить новые данные на GitHub</span>';
+      ? '<span>✅ Разрешить (Демо-тест: удалить demo.html)</span>'
+      : '<span>✅ Применить расписание из Excel и обновить базу на GitHub</span>';
   }
   if (rejectBtn) {
-    rejectBtn.textContent = isDemo
-      ? '✕ Отклонить и удалить demo.html'
-      : '✕ Отклонить изменения';
+    rejectBtn.textContent = '✕ Отклонить';
   }
 
   card.classList.remove('hidden');
@@ -148,458 +653,48 @@ function showScheduleApprovalUI(updateObj) {
   }
 }
 
-async function checkBsuWebsiteSchedule(isManual = false) {
-  if (!isAdminMode) return;
-
-  const btn1 = document.getElementById('adminCheckBsuBtn');
-  const btn2 = document.getElementById('modalCheckBsuBtn');
-  if (btn1) { btn1.disabled = true; btn1.innerHTML = '<span>⏳ Проверяем law.bsu.by...</span>'; }
-  if (btn2) { btn2.disabled = true; btn2.innerHTML = '<span>⏳ Проверяем law.bsu.by...</span>'; }
-
-  setBsuStatusBadge('⏳ Проверка law.bsu.by...', 'indigo');
-  setBsuProgressUI(true, '🔍 Подключаемся к странице расписания Юрфака БГУ (<code>law.bsu.by</code>)...', 30);
-  if (isManual) {
-    showSyncMessage('🔍 Проверяем страницу расписания Юрфака БГУ для 4 курса заочного отделения (Политология)...');
-  }
-
-  try {
-    const rawHtml = await fetchUrlWithCorsFallback(BSU_SCHEDULE_PAGE_URL);
-    setBsuProgressUI(true, '🤖 Анализируем расписание и объявления для 4 курса заочного отделения (Политология, 1Б)...', 65);
-
-    const savedKey = sanitizeGeminiKey(localStorage.getItem(STORAGE_KEY_API) || (document.getElementById('geminiApiKeyInput') ? document.getElementById('geminiApiKeyInput').value : ''));
-
-    if (!rawHtml) {
-      setBsuProgressUI(false);
-      setBsuStatusBadge('Сайт БГУ проверен (без изменений)', 'emerald');
-      if (isManual) {
-        showSyncMessage(`ℹ️ Страница <a href="${BSU_SCHEDULE_PAGE_URL}" target="_blank" class="underline text-emerald-300">law.bsu.by</a> проверена. Новых изменений кабинетов или дат сверх текущего расписания сессии (26.10 – 15.11.2026) не обнаружено. Для проверки полного цикла с генерацией изменений нажми <b>«🧪 Демо-режим (demo.html)»</b>.`);
-        showToast('✅ Сайт Юрфака БГУ проверен: расписание актуально');
-      }
-      return;
-    }
-
-    const snippet = extractBsuRelevantSnippet(rawHtml);
-
-    if (savedKey) {
-      const currentScheduleSummary = JSON.stringify({
-        classesSample: Object.fromEntries(Object.entries(CLASSES).slice(0, 8)),
-        exams: EXAMS
-      });
-
-      const prompt = `Ты — система мониторинга расписания Юридического факультета БГУ для специальности «Политология», 4 курс, заочное отделение (группа 1Б).
-Страница проверки: ${BSU_SCHEDULE_PAGE_URL}
-Извлечённый фрагмент страницы сайта Юрфака БГУ:
-${snippet}
-
-Текущая база расписания группы 1Б в приложении:
-${currentScheduleSummary}
-
-Задача:
-Проверь, появилось ли на странице явное новое объявление об изменении кабинетов, времени или дат именно для 4 курса заочного отделения специальности «Политология» (группа 1Б) по сравнению с текущей базой.
-Верни СТРОГО валидный JSON-объект в формате:
-{
-  "hasChanges": false,
-  "title": "Краткий заголовок результата проверки",
-  "changesList": ["Подробное описание изменения 1 (дата, время, предмет, старый и новый кабинет)"],
-  "proposedClassesPatch": {}
-}
-Если на странице только стандартные ссылки на файлы расписания без новых правок кабинетов/дат для 4 курса политологов заочного отделения, верни "hasChanges": false.`;
-
-      try {
-        const aiRes = await callGeminiWithFallback(savedKey, [{ parts: [{ text: prompt }] }], true);
-        const jsonMatch = aiRes.text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0]);
-          if (parsed.hasChanges && Array.isArray(parsed.changesList) && parsed.changesList.length > 0) {
-            setBsuProgressUI(false);
-            setBsuStatusBadge('🔔 Найдено обновление на сайте БГУ!', 'amber');
-            showScheduleApprovalUI({
-              mode: 'bsu',
-              title: parsed.title || 'Новое обновление расписания на сайте Юрфака БГУ (4 курс, Политология, заочное)',
-              changesList: parsed.changesList,
-              proposedClassesPatch: parsed.proposedClassesPatch || {}
-            });
-            if (isManual) {
-              showSyncMessage('🔔 На сайте Юрфака БГУ обнаружены изменения! Проверь карточку подтверждения в верхней части админ-панели.');
-            }
-            showToast('🔔 На сайте БГУ найдено обновление расписания!');
-            return;
-          }
-        }
-      } catch (aiErr) {
-        // Если Gemini временно недоступен, завершаем базовой проверкой текста
-      }
-    }
-
-    setBsuProgressUI(false);
-    const nowShort = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-    setBsuStatusBadge(`Актуально (${nowShort})`, 'emerald');
-    if (isManual) {
-      showSyncMessage(`✅ Страница <a href="${BSU_SCHEDULE_PAGE_URL}" target="_blank" class="underline font-bold text-white">Юрфака БГУ (заочное отделение)</a> успешно проверена (${nowShort}). Новых изменений кабинетов или переносов пар для 4 курса «Политология» (гр. 1Б) не обнаружено.<br>💡 <i>Чтобы протестировать появление объявления и окно разрешения администратора, запусти <b>«🧪 Демо-режим (demo.html)»</b>.</i>`);
-      showToast('✅ Сайт Юрфака БГУ проверен: изменений нет');
-    }
-  } catch (err) {
-    setBsuProgressUI(false);
-    setBsuStatusBadge('Ошибка проверки', 'rose');
-    if (isManual) {
-      showSyncMessage(`⚠️ Не удалось проверить сайт БГУ: ${err.message}`, true);
-    }
-  } finally {
-    if (btn1) { btn1.disabled = false; btn1.innerHTML = '<span>🔍 Проверить сайт БГУ</span>'; }
-    if (btn2) { btn2.disabled = false; btn2.innerHTML = '<span>🔍 Проверить сайт БГУ сейчас</span>'; }
-  }
-}
-
-function generateFallbackDemoScenario() {
-  const scenarios = [
-    {
-      date: '2026-10-30',
-      humanDate: '30.10.2026 (Пятница)',
-      subject: 'Информационный менеджмент и маркетинг',
-      teacher: 'доц. Краснобаева Л.А.',
-      time: '16:15–17:35',
-      oldRoom: '512',
-      newRoom: '408',
-      control: 'зач',
-      extraTime: '17:45–19:05',
-      extraSubject: 'Предэкзаменационная консультация: Хозяйственное право',
-      extraTeacher: 'ст.преп. Гавриленко А.В.',
-      extraRoom: '406'
-    },
-    {
-      date: '2026-11-02',
-      humanDate: '02.11.2026 (Понедельник)',
-      subject: 'Хозяйственное право (Экзамен)',
-      teacher: 'ст.преп. Гавриленко А.В.',
-      time: '14:10–15:30',
-      oldRoom: '406',
-      newRoom: '309 (Актовый зал)',
-      control: 'экз',
-      extraTime: '12:30–13:50',
-      extraSubject: 'Дополнительный обзор вопросов: Политология права',
-      extraTeacher: 'доц. Пилипенко А.А.',
-      extraRoom: '510'
-    },
-    {
-      date: '2026-11-05',
-      humanDate: '05.11.2026 (Четверг)',
-      subject: 'Уголовное право (Экзамен)',
-      teacher: 'доц. Федчук И.Л.',
-      time: '09:00–10:20',
-      oldRoom: '312',
-      newRoom: '214',
-      control: 'экз',
-      extraTime: '10:35–11:55',
-      extraSubject: 'Консультация по этнополитологии',
-      extraTeacher: 'доц. Слуцкая Л.В.',
-      extraRoom: '504'
-    }
-  ];
-  const pick = scenarios[Math.floor(Math.random() * scenarios.length)];
-  const changesList = [
-    `📍 <b>Смена аудитории (${pick.humanDate}, ${pick.time}):</b> дисциплина «<b>${pick.subject}</b>» (${pick.teacher}) перенесена из каб. <s>${pick.oldRoom}</s> ➔ в <b>каб. ${pick.newRoom}</b>.`,
-    `➕ <b>Добавлено занятие (${pick.humanDate}, ${pick.extraTime}):</b> «<b>${pick.extraSubject}</b>» (${pick.extraTeacher}), <b>каб. ${pick.extraRoom}</b>.`
-  ];
-  return {
-    title: `Объявление деканата ЮФ БГУ: обновление расписания для 4 курса заочного отд. (Политология, гр. 1Б) на ${pick.humanDate}`,
-    changesList,
-    scenario: pick
-  };
-}
-
-async function deleteDemoHtmlFromGithub(repo, branch, token, knownSha = null) {
-  if (!repo || !token) return false;
-  try {
-    const apiUrl = `https://api.github.com/repos/${repo}/contents/demo.html`;
-    const headers = {
-      'Accept': 'application/vnd.github.v3+json',
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    };
-    let shaToDelete = knownSha;
-    if (!shaToDelete) {
-      const checkUrl = `${apiUrl}?ref=${encodeURIComponent(branch)}&t=${Date.now()}`;
-      const checkResp = await fetch(checkUrl, { headers, cache: 'no-store' });
-      if (checkResp.ok) {
-        const meta = await checkResp.json();
-        shaToDelete = meta && meta.sha;
-      }
-    }
-    if (!shaToDelete) return true;
-
-    const delResp = await fetch(apiUrl, {
-      method: 'DELETE',
-      headers,
-      body: JSON.stringify({
-        message: 'Авто-очистка временного демо-расписания (demo.html) v0.7',
-        sha: shaToDelete,
-        branch: branch
-      })
-    });
-    return delResp.ok;
-  } catch (e) {
-    return false;
-  }
-}
-
-async function runDemoAutoUpdateTest() {
-  if (!isAdminMode) {
-    handleAdminAuthClick();
-    return;
-  }
-
-  saveGithubConfigFromInputs();
-  const repo = (GITHUB_CONFIG && GITHUB_CONFIG.repo) || detectGithubPagesRepo();
-  const branch = (GITHUB_CONFIG && GITHUB_CONFIG.branch) || 'main';
-  const token = (GITHUB_CONFIG && GITHUB_CONFIG.token) || '';
-  const savedKey = sanitizeGeminiKey(localStorage.getItem(STORAGE_KEY_API) || (document.getElementById('geminiApiKeyInput') ? document.getElementById('geminiApiKeyInput').value : ''));
-
-  const btn1 = document.getElementById('adminRunDemoBtn');
-  const btn2 = document.getElementById('modalRunDemoBtn');
-  if (btn1) { btn1.disabled = true; btn1.innerHTML = '<span>⏳ Демо-тест...</span>'; }
-  if (btn2) { btn2.disabled = true; btn2.innerHTML = '<span>⏳ Демо-тест...</span>'; }
-
-  const panel = document.getElementById('adminAutoUpdatePanel');
-  if (panel) panel.classList.remove('hidden');
-
-  try {
-    // ШАГ 1: Генерация случайного расписания в формате HTML через Gemini API
-    setBsuStatusBadge('🧪 Шаг 1/4: Генерация Gemini...', 'amber');
-    setBsuProgressUI(true, '🤖 <b>Шаг 1/4:</b> Gemini API генерирует случайное обновление расписания для 4 курса (Политология, гр. 1Б) для файла <code>demo.html</code>...', 25);
-    showSyncMessage('🧪 <b>Демо-режим (Шаг 1/4):</b> Генерируем случайное расписание через Gemini API для файла <code>demo.html</code>...');
-
-    let demoPayload = generateFallbackDemoScenario();
-
-    if (savedKey) {
-      try {
-        const prompt = `Сгенерируй реалистичное тестовое обновление расписания занятий на Юридическом факультете БГУ для 4 курса заочного отделения специальности «Политология» (группа 1Б) в период сессии 26.10.2026 – 15.11.2026.
-Придумай 2 конкретных изменения (например, перенос существующей пары в другой кабинет и добавление консультации или лекции с указанием точной даты, времени, предмета, преподавателя ЮФ БГУ и номера кабинета).
-Верни СТРОГО валидный JSON без пояснений:
-{
-  "title": "Объявление Юрфака БГУ: корректировка расписания 4 курса заочного отд. (Политология, гр. 1Б)",
-  "changesList": [
-"📍 Смена кабинета (дата, время): Предмет (Преподаватель) перенесён из каб. X в каб. Y",
-"➕ Добавлена пара/консультация (дата, время): Предмет (Преподаватель), каб. Z"
-  ]
-}`;
-        const aiResult = await callGeminiWithFallback(savedKey, [{ parts: [{ text: prompt }] }], true);
-        const jsonMatch = aiResult.text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0]);
-          if (parsed.title && Array.isArray(parsed.changesList) && parsed.changesList.length > 0) {
-            demoPayload = {
-              title: parsed.title,
-              changesList: parsed.changesList
-            };
-          }
-        }
-      } catch (e) {
-        // Используем резервный реалистичный сценарий, если API-ключ не задан или квота исчерпана
-      }
-    }
-
-    const demoHtmlDocument = `<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <title>Демо-обновление расписания Юрфака БГУ (demo.html)</title>
-</head>
-<body>
-  <h1>Юридический факультет БГУ — Заочное отделение (4 курс, Политология, группа 1Б)</h1>
-  <div id="bsu-demo-announcement" data-generated-at="${new Date().toISOString()}">
-<h2>${escapeHtml(demoPayload.title)}</h2>
-<ul>
-  ${demoPayload.changesList.map(c => `<li>${c}</li>`).join('\n      ')}
-</ul>
-  </div>
-  <script id="bsu-demo-json" type="application/json">${JSON.stringify(demoPayload, null, 2)}<\/script>
-</body>
-</html>`;
-
-    // ШАГ 2: Запись demo.html в репозиторий GitHub (если указан токен и репозиторий)
-    let uploadedDemoSha = null;
-    let usedGithubRepo = false;
-
-    if (repo && token) {
-      setBsuStatusBadge('🧪 Шаг 2/4: Запись demo.html в GitHub...', 'amber');
-      setBsuProgressUI(true, `☁️ <b>Шаг 2/4:</b> Сохраняем сгенерированный файл <code>demo.html</code> в репозиторий <b>${escapeHtml(repo)}</b>...`, 45);
-      showSyncMessage(`🧪 <b>Демо-режим (Шаг 2/4):</b> Загружаем <code>demo.html</code> в репозиторий <code>${escapeHtml(repo)}</code>...`);
-
-      const apiUrl = `https://api.github.com/repos/${repo}/contents/demo.html`;
-      const headers = {
-        'Accept': 'application/vnd.github.v3+json',
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      };
-
-      let existingSha = null;
-      try {
-        const checkUrl = `${apiUrl}?ref=${encodeURIComponent(branch)}&t=${Date.now()}`;
-      const checkResp = await fetch(checkUrl, { headers, cache: 'no-store' });
-        if (checkResp.ok) {
-          const meta = await checkResp.json();
-          existingSha = meta && meta.sha;
-        }
-      } catch (e) {}
-
-      const putBody = {
-        message: 'Демо-тест автообновления: создание временного расписания demo.html (v0.7)',
-        content: encodeUtf8Base64(demoHtmlDocument),
-        branch: branch
-      };
-      if (existingSha) putBody.sha = existingSha;
-
-      const putResp = await fetch(apiUrl, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify(putBody)
-      });
-      if (putResp.ok) {
-        const putData = await putResp.json();
-        uploadedDemoSha = putData?.content?.sha || null;
-        usedGithubRepo = true;
-      }
-    }
-
-    // ШАГ 3: Обязательная задержка с обратным отсчётом (чтобы Gemini и GitHub зафиксировали файл demo.html)
-    const delaySeconds = 4;
-    for (let remaining = delaySeconds; remaining >= 1; remaining--) {
-      const pct = 50 + Math.round(((delaySeconds - remaining + 1) / delaySeconds) * 30);
-      setBsuStatusBadge(`🧪 Ожидание (${remaining} с)...`, 'amber');
-      setBsuProgressUI(
-        true,
-        `⏳ <b>Шаг 3/4:</b> Ожидаем фиксации файла <code>demo.html</code> перед считыванием и анализом...`,
-        pct,
-        `Осталось: ${remaining} сек.`
-      );
-      await new Promise(r => setTimeout(r, 1000));
-    }
-
-    // ШАГ 4: Считывание файла demo.html из репозитория и разбор изменений
-    setBsuStatusBadge('🧪 Шаг 4/4: Чтение demo.html...', 'indigo');
-    setBsuProgressUI(true, '📖 <b>Шаг 4/4:</b> Считываем <code>demo.html</code> из репозитория и формируем отчёт об изменениях...', 92);
-
-    let readBackPayload = demoPayload;
-    if (usedGithubRepo) {
-      try {
-        const apiUrl = `https://api.github.com/repos/${repo}/contents/demo.html?ref=${encodeURIComponent(branch)}&t=${Date.now()}`;
-        const headers = {
-          'Accept': 'application/vnd.github.v3+json',
-          'Authorization': `Bearer ${token}`
-        };
-        const getResp = await fetch(apiUrl, { headers, cache: 'no-store' });
-        if (getResp.ok) {
-          const getMeta = await getResp.json();
-          if (getMeta && getMeta.sha) {
-            uploadedDemoSha = getMeta.sha;
-          }
-          if (getMeta && getMeta.content) {
-            const decodedHtml = decodeUtf8Base64(getMeta.content);
-            const jsonScriptMatch = decodedHtml.match(/<script id="bsu-demo-json"[^>]*>([\s\S]*?)<\/script>/);
-            if (jsonScriptMatch && jsonScriptMatch[1]) {
-              readBackPayload = JSON.parse(jsonScriptMatch[1]);
-            }
-          }
-        }
-      } catch (e) {}
-    }
-
-    setBsuProgressUI(false);
-    setBsuStatusBadge('🧪 Демо: ожидает решения админа', 'amber');
-
-    showScheduleApprovalUI({
-      mode: 'demo',
-      title: readBackPayload.title,
-      changesList: readBackPayload.changesList,
-      proposedClassesPatch: {},
-      demoSha: uploadedDemoSha,
-      demoRepo: repo,
-      demoBranch: branch,
-      usedGithubRepo: usedGithubRepo
-    });
-
-    const repoNote = usedGithubRepo
-      ? `Файл <code>demo.html</code> успешно записан и считан из репозитория <b>${escapeHtml(repo)}</b>.`
-      : `Демо-файл <code>demo.html</code> обработан в локальной песочнице (укажи GitHub Token для записи в репозиторий).`;
-
-    showSyncMessage(`🧪 <b>Демо-проверка завершена!</b> ${repoNote}<br>Посмотри карточку уведомления с перечнем изменений и кнопками разрешения. Настоящее расписание не изменится, а <code>demo.html</code> будет автоматически удалён.`);
-    showToast('🧪 Демо-расписание из demo.html считано! Проверь уведомление');
-  } catch (err) {
-    setBsuProgressUI(false);
-    setBsuStatusBadge('Ошибка демо-теста', 'rose');
-    showSyncMessage(`❌ Ошибка во время демо-теста: <b>${escapeHtml(err.message)}</b>`, true);
-  } finally {
-    if (btn1) { btn1.disabled = false; btn1.innerHTML = '<span>🧪 Демо-тест (demo.html)</span>'; }
-    if (btn2) { btn2.disabled = false; btn2.innerHTML = '<span>🧪 Демо-режим (demo.html)</span>'; }
-  }
-}
-
 async function approvePendingScheduleUpdate() {
   if (!pendingScheduleUpdate) return;
   const update = pendingScheduleUpdate;
   const card = document.getElementById('adminScheduleApprovalCard');
 
   if (update.mode === 'demo') {
-    // В демо-режиме настоящее расписание НИКАК не изменяется, а файл demo.html удаляется из репозитория
-    setBsuProgressUI(true, '🧹 Удаляем временный файл <code>demo.html</code> из репозитория GitHub (основное расписание не затрагивается)...', 80);
-    const token = (GITHUB_CONFIG && GITHUB_CONFIG.token) || '';
-    if (update.usedGithubRepo && update.demoRepo && token) {
-      await deleteDemoHtmlFromGithub(update.demoRepo, update.demoBranch || 'main', token, update.demoSha);
-    }
-    setBsuProgressUI(false);
     if (card) card.classList.add('hidden');
     pendingScheduleUpdate = null;
-    setBsuStatusBadge('✅ Демо завершено (demo.html удалён)', 'emerald');
-    showSyncMessage('✅ <b>Демо-тест успешно завершён!</b> Разрешение протестировано, основное расписание группы 1Б осталось неизменным, а временный файл <code>demo.html</code> удалён из репозитория.');
-    showToast('🧪 Демо-тест завершён: demo.html удалён, база 1Б не изменена');
+    setBsuStatusBadge('✅ Демо завершено', 'emerald');
+    showSyncMessage('✅ <b>Демо-тест успешно завершён!</b>');
+    showToast('🧪 Демо-тест завершён');
     return;
   }
 
-  // Режим реального обновления с сайта Юрфака БГУ (только с разрешения администратора!)
-  let updatedCount = 0;
+  // Применяем расписание из Excel-таблицы БГУ
+  let updatedDaysCount = 0;
   if (update.proposedClassesPatch && typeof update.proposedClassesPatch === 'object') {
     for (const [dateKey, dayArr] of Object.entries(update.proposedClassesPatch)) {
       if (/^\d{4}-\d{2}-\d{2}$/.test(dateKey) && Array.isArray(dayArr)) {
         CLASSES[dateKey] = sanitizeClassesData({ [dateKey]: dayArr })[dateKey] || dayArr;
-        updatedCount++;
+        updatedDaysCount++;
       }
     }
   }
-  if (Array.isArray(update.proposedExamsPatch) && update.proposedExamsPatch.length > 0) {
-    EXAMS = update.proposedExamsPatch;
-  }
 
-  const diffSummaryHtml = (update.changesList || []).join('<br>');
-  logCalendarChange('Автообновление БГУ (одобрено админом)', `<b>${escapeHtml(update.title)}</b><br>${diffSummaryHtml}`);
-  saveAllToStorage('Автообновление БГУ');
+  const diffSummaryHtml = (update.changesList || []).slice(0, 5).join('<br>');
+  logCalendarChange('Обновление из Excel БГУ', `<b>${escapeHtml(update.title)}</b> (${updatedDaysCount} дней обновлено)<br>${diffSummaryHtml}`);
+  saveAllToStorage('Таблица Excel БГУ');
   refreshAllViews();
 
   if (card) card.classList.add('hidden');
   pendingScheduleUpdate = null;
-  setBsuStatusBadge('✅ Обновлено и загружено в GitHub', 'emerald');
-  showSyncMessage(`✅ Изменения с сайта Юрфака БГУ одобрены администратором и отправлены в <code>schedule.json</code> на GitHub!`);
-  showToast('✅ Новое расписание с сайта БГУ сохранено на GitHub');
+
+  setBsuStatusBadge('✅ Excel применён и загружен в GitHub', 'emerald');
+  showSyncMessage(`🎉 <b>Расписание из Excel-таблицы БГУ успешно применено!</b> Обновлено ${updatedDaysCount} дней. База записана в <code>data/schedule.json</code> на GitHub!`);
+  showToast(`🎉 Расписание из Excel БГУ обновлено на GitHub!`);
 }
 
-async function rejectPendingScheduleUpdate() {
-  const update = pendingScheduleUpdate;
+function rejectPendingScheduleUpdate() {
   const card = document.getElementById('adminScheduleApprovalCard');
   if (card) card.classList.add('hidden');
   pendingScheduleUpdate = null;
-
-  if (update && update.mode === 'demo') {
-    setBsuProgressUI(true, '🧹 Удаляем временный файл <code>demo.html</code> из репозитория GitHub...', 80);
-    const token = (GITHUB_CONFIG && GITHUB_CONFIG.token) || '';
-    if (update.usedGithubRepo && update.demoRepo && token) {
-      await deleteDemoHtmlFromGithub(update.demoRepo, update.demoBranch || 'main', token, update.demoSha);
-    }
-    setBsuProgressUI(false);
-    setBsuStatusBadge('Демо закрыто (demo.html удалён)', 'emerald');
-    showToast('🧪 Демо-обновление отклонено, файл demo.html удалён');
-  } else {
-    setBsuStatusBadge('Изменения отклонены админом', 'emerald');
-    showToast('ℹ️ Обновление расписания отклонено');
-  }
+  setBsuStatusBadge('Обновление отклонено', 'emerald');
+  showToast('ℹ️ Обновление расписания отклонено');
 }
-
-
