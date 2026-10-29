@@ -236,10 +236,10 @@ function isLikelyExamItem(item, dateIso, dayArrayLength = 0) {
 
   // 3. Проверяем совпадение предмета с экзаменом/зачётом в этот день
   const subj = item.subject || '';
-  const baseDayClasses = (BASELINE_CLASSES_1B && BASELINE_CLASSES_1B[dateIso]) ? BASELINE_CLASSES_1B[dateIso] : [];
+  const baseDayClasses = (CLASSES && Array.isArray(CLASSES[dateIso])) ? CLASSES[dateIso] : [];
   const matchesAfternoonClassOnThatDay = baseDayClasses.some(c => subjectsMatch(c.subject, subj));
 
-  const allExamsRef = (Array.isArray(EXAMS) && EXAMS.length > 0) ? EXAMS : BASELINE_EXAMS_1B;
+  const allExamsRef = Array.isArray(EXAMS) ? EXAMS : [];
   const matchesExamOnThatDate = allExamsRef.some(ex => ex.date === dateIso && subjectsMatch(ex.subject, subj));
   if (matchesExamOnThatDate && !matchesAfternoonClassOnThatDay) {
     return true;
@@ -256,8 +256,8 @@ function isLikelyExamItem(item, dateIso, dayArrayLength = 0) {
 
 function upsertExamRecord(examInput) {
   if (!examInput || typeof examInput !== 'object') return { updated: false, exam: null };
-  if (!Array.isArray(EXAMS) || EXAMS.length === 0) {
-    EXAMS = JSON.parse(JSON.stringify(BASELINE_EXAMS_1B));
+  if (!Array.isArray(EXAMS)) {
+    EXAMS = [];
   }
 
   const dateIso = (examInput.date && /^\d{4}-\d{2}-\d{2}$/.test(examInput.date)) ? examInput.date : '';
@@ -343,7 +343,7 @@ function mergeAfternoonClassesForDay(dateIso, incomingClasses) {
     else if (!end) end = '15:30';
 
     const room = cleanRoomString(c.room);
-    const baseMatch = ((BASELINE_CLASSES_1B && BASELINE_CLASSES_1B[dateIso]) || []).find(
+    const baseMatch = ((CLASSES && CLASSES[dateIso]) || []).find(
       b => b.start === start || subjectsMatch(b.subject, c.subject)
     );
 
@@ -360,7 +360,7 @@ function mergeAfternoonClassesForDay(dateIso, incomingClasses) {
 
   const existingDay = (Array.isArray(CLASSES[dateIso]) && CLASSES[dateIso].length > 0)
     ? CLASSES[dateIso]
-    : JSON.parse(JSON.stringify((BASELINE_CLASSES_1B && BASELINE_CLASSES_1B[dateIso]) || []));
+    : [];
 
   // Если пришло меньше пар, чем обычно в этот день (например, частичное фото), обновляем слоты точечно без удаления остальных пар дня!
   if (existingDay.length > normalizedIncoming.length) {
@@ -428,7 +428,7 @@ function applySmartScheduleUpdate(parsed, mode = 'auto', actionLabel = 'Импо
   const allDaysSingleExamSubject = dateEntries.length > 0 && dateEntries.every(([dKey, dArr]) => {
     if (dArr.length !== 1) return false;
     const item = dArr[0];
-    return isLikelyExamItem(item, dKey, 1) || BASELINE_EXAMS_1B.some(ex => subjectsMatch(ex.subject, item.subject));
+    return isLikelyExamItem(item, dKey, 1) || (Array.isArray(EXAMS) && EXAMS.some(ex => subjectsMatch(ex.subject, item.subject)));
   });
 
   const effectiveExamBatch = (mode === 'exams') || (parsed.type === 'exams') || (parsed.sheetType === 'exams') || allDaysSingleExamSubject;
@@ -513,32 +513,12 @@ function healScheduleAndExamsFromLogs() {
   let recoveredExamRooms = 0;
   let recoveredClassRooms = 0;
 
-  // 1. Проверяем EXAMS: восстанавливаем только если список пуст или экзамен потерян без лога удаления
-  if (!Array.isArray(EXAMS) || EXAMS.length === 0) {
-    EXAMS = JSON.parse(JSON.stringify(BASELINE_EXAMS_1B));
-    healed = true;
-  } else {
-    BASELINE_EXAMS_1B.forEach(baseEx => {
-      const exists = EXAMS.some(e => e.date === baseEx.date && subjectsMatch(e.subject, baseEx.subject));
-      if (!exists) {
-        if (!isExamDeletedInChangelog(baseEx.date, baseEx.subject)) {
-          EXAMS.push(JSON.parse(JSON.stringify(baseEx)));
-          healed = true;
-        }
-      }
-    });
-  }
+  if (!Array.isArray(EXAMS)) EXAMS = [];
+  if (!CLASSES || typeof CLASSES !== 'object') CLASSES = {};
 
-  // 2. Проверяем CLASSES на случайно записанные туда утренние экзамены и восстанавливаем затёртые дни
-  if (!CLASSES || typeof CLASSES !== 'object') {
-    CLASSES = JSON.parse(JSON.stringify(BASELINE_CLASSES_1B));
-    healed = true;
-  }
-
-  for (const dateIso of Object.keys(BASELINE_CLASSES_1B)) {
+  // 1. Проверяем CLASSES на случайно попавшие туда утренние зачёты/экзамены и переносим их в EXAMS
+  for (const dateIso of Object.keys(CLASSES)) {
     const currentArr = Array.isArray(CLASSES[dateIso]) ? CLASSES[dateIso] : [];
-    const baseArr = BASELINE_CLASSES_1B[dateIso] || [];
-
     const validAfternoon = [];
     for (const item of currentArr) {
       if (isLikelyExamItem(item, dateIso, currentArr.length)) {
@@ -549,22 +529,7 @@ function healScheduleAndExamsFromLogs() {
         validAfternoon.push(item);
       }
     }
-
-    // Защита от воскрешения удалённых пар:
-    // Восстанавливаем день из baseline ТОЛЬКО если день был полностью стёрт (validAfternoon.length === 0),
-    // и эти пары НЕ были намеренно удалены администратором в журнале изменений!
-    // Если же в дне есть хотя бы 1 пара (validAfternoon.length > 0), намеренные удаления не отменяются!
-    if (validAfternoon.length === 0 && baseArr.length > 0) {
-      const survivingBase = baseArr.filter(baseCls => !isClassDeletedInChangelog(dateIso, baseCls.subject, baseCls.start));
-      if (survivingBase.length > 0) {
-        CLASSES[dateIso] = JSON.parse(JSON.stringify(survivingBase));
-        restoredClassDays++;
-        healed = true;
-      } else if (currentArr.length > 0) {
-        CLASSES[dateIso] = [];
-        healed = true;
-      }
-    } else if (validAfternoon.length !== currentArr.length) {
+    if (validAfternoon.length !== currentArr.length) {
       CLASSES[dateIso] = validAfternoon;
       healed = true;
     }
@@ -572,8 +537,7 @@ function healScheduleAndExamsFromLogs() {
 
   CLASSES = sanitizeClassesData(CLASSES);
 
-  // 3. Анализируем журнал истории (CALENDAR_CHANGELOG) от старых записей к новым,
-  // чтобы вытащить все ранее распознанные кабинеты экзаменов и пар!
+  // 2. Подтягиваем ранее распознанные кабинеты из журнала истории (только для существующих записей)
   if (Array.isArray(CALENDAR_CHANGELOG) && CALENDAR_CHANGELOG.length > 0) {
     const chronologicalLogs = [...CALENDAR_CHANGELOG].reverse();
     const lineRegex = /📅\s*<b>(\d{2})\.(\d{2})\.(\d{4}):<\/b>\s*(.*)/i;
@@ -582,11 +546,10 @@ function healScheduleAndExamsFromLogs() {
 
     for (const entry of chronologicalLogs) {
       if (!entry || !entry.detail) continue;
-      if (entry.action && entry.action.toLowerCase().includes('удален')) continue; // Не подтягиваем кабинеты для удалений!
+      if (entry.action && entry.action.toLowerCase().includes('удален')) continue;
       const lines = String(entry.detail).split(/<br\s*\/?>/i);
-
-      // Сначала соберём все распарсенные строки этой записи лога
       const parsedLines = [];
+
       for (const rawLine of lines) {
         const cleanLine = rawLine.replace(/<\/?b>/gi, match => match.toLowerCase());
         const exMatch = cleanLine.match(examLogRegex);
@@ -625,44 +588,21 @@ function healScheduleAndExamsFromLogs() {
         }
       }
 
-      // Определяем, была ли эта запись в логе сканированием ведомости экзаменов
-      const isWholeEntryExamScan = parsedLines.length > 0 && parsedLines.every(pl =>
-        pl.items.length === 1 && (
-          isLikelyExamItem(pl.items[0], pl.iso, 1) ||
-          BASELINE_EXAMS_1B.some(ex => subjectsMatch(ex.subject, pl.items[0].subject))
-        )
-      );
-
       for (const pl of parsedLines) {
         for (const it of pl.items) {
           if (!isValidRoomValue(it.room)) continue;
-          if (isWholeEntryExamScan || isLikelyExamItem(it, pl.iso, pl.items.length)) {
+          if (isLikelyExamItem(it, pl.iso, pl.items.length)) {
             if (!isExamDeletedInChangelog(pl.iso, it.subject)) {
-              const res = upsertExamRecord({
-                date: pl.iso,
-                time: it.start,
-                subject: it.subject,
-                room: it.room
-              });
+              const res = upsertExamRecord({ date: pl.iso, time: it.start, subject: it.subject, room: it.room });
               if (res.updated) {
                 recoveredExamRooms++;
                 healed = true;
               }
             }
           } else {
-            // Это обычная дневная пара — если в CLASSES[pl.iso] сейчас стоит «уточняется», восстанавливаем кабинет из лога!
             const dayArr = CLASSES[pl.iso] || [];
             let targetCls = dayArr.find(c => c.start === it.start && subjectsMatch(c.subject, it.subject));
-            if (!targetCls && it.start) {
-              targetCls = dayArr.find(c => c.start === it.start);
-            }
-            if (!targetCls && it.subject) {
-              const sameSubj = dayArr.filter(c => subjectsMatch(c.subject, it.subject));
-              if (sameSubj.length === 1) targetCls = sameSubj[0];
-              else if (sameSubj.length > 1) {
-                targetCls = sameSubj.find(c => !isValidRoomValue(c.room)) || sameSubj[0];
-              }
-            }
+            if (!targetCls && it.start) targetCls = dayArr.find(c => c.start === it.start);
             if (targetCls && !isValidRoomValue(targetCls.room)) {
               targetCls.room = it.room;
               recoveredClassRooms++;
