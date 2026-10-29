@@ -710,7 +710,8 @@
             <div class="space-y-1">
               <label class="block text-[11px] font-semibold text-gray-300">1. Какой модуль обновляем:</label>
               <select id="ghTargetModuleSelect" onchange="onIndexHtmlFileSelected()" class="w-full rounded-xl bg-gray-950 border border-white/15 px-2.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                <option value="auto">🤖 Авто-определение по имени файла</option>
+                <option value="zip-unpack">📦 Авто-распаковка ZIP-архива (все файлы по папкам)</option>
+                <option value="auto">🤖 Авто-определение по имени файла (или ZIP)</option>
                 <option value="index.html">index.html (Каркас интерфейса)</option>
                 <option value="css/style.css">css/style.css (Таблица стилей)</option>
                 <option value="data/schedule.json">data/schedule.json (База расписания)</option>
@@ -728,7 +729,11 @@
             </div>
             <div class="space-y-1">
               <label class="block text-[11px] font-semibold text-gray-300">2. Выбери файл модуля (.js, .css, .json, .html):</label>
-              <input type="file" id="ghIndexFileInput" accept=".html,.htm,.js,.css,.json,.md,text/*" onchange="onIndexHtmlFileSelected(event)" class="w-full text-xs text-gray-300 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer bg-gray-950/80 rounded-xl border border-white/10 p-1" />
+              <label for="ghIndexFileInput" id="ghIndexFileLabel" class="w-full py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-indigo-600/30 border border-indigo-400/50 transition truncate">
+                <span>📁</span>
+                <span id="ghIndexFileLabelText">Выбрать файл на устройстве...</span>
+              </label>
+              <input type="file" id="ghIndexFileInput" accept=".zip,application/zip,application/x-zip-compressed,.html,.htm,.js,.css,.json,.md,text/*,*/*" onchange="onIndexHtmlFileSelected(event); const lbl = document.getElementById('ghIndexFileLabelText'); if (lbl && this.files && this.files[0]) lbl.textContent = 'Выбран: ' + this.files[0].name;" class="hidden" />
             </div>
           </div>
 
@@ -739,9 +744,14 @@
             <input type="text" id="ghIndexCommitMsg" placeholder="Например: Обновление модуля js/calendar.js" value="Обновление модуля (v0.8)" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500" />
           </div>
 
-          <button type="button" onclick="pushIndexHtmlToGithub()" id="ghPushIndexBtn" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-95 text-white text-xs font-bold transition shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-1.5">
-            <span>🚀 Запушить выбранный модуль на GitHub</span>
-          </button>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button type="button" onclick="pushIndexHtmlToGithub()" id="ghPushIndexBtn" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-95 text-white text-xs font-bold transition shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-1.5">
+              <span>🚀 Загрузить файл / распаковать выбранный ZIP</span>
+            </button>
+            <button type="button" onclick="unpackRemoteZipInGithubRepo(true)" class="w-full py-2.5 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 border border-amber-500/40 text-amber-200 text-xs font-bold transition flex items-center justify-center gap-1.5">
+              <span>📦 Распаковать ZIP, уже лежащий в репо GitHub</span>
+            </button>
+          </div>
         </div>
 
         <!-- БЛОК АВТОПРОВЕРКИ САЙТА ЮРФАКА БГУ И ДЕМО-РЕЖИМА (v0.7) -->
@@ -1023,7 +1033,7 @@
   </div>
 
 
-  <!-- МОДАЛЬНОЕ ОКНО: МОДУЛЬНАЯ АРХИТЕКТУРА (13 ФАЙЛОВ) И АВТО-ДЕПЛОЙ В НОВЫЙ РЕПОЗИТОРИЙ GITHUB -->
+  <!-- МОДАЛЬНОЕ ОКНО: МОДУЛЬНАЯ АРХИТЕКТУРА (13 ФАЙЛОВ), АВТО-РАСПАКОВКА ZIP И ДЕПЛОЙ В GITHUB -->
   <div id="modularExplorerModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="glass-card w-full sm:max-w-4xl rounded-t-3xl sm:rounded-2xl border-t sm:border border-emerald-500/40 p-4 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto shadow-2xl">
       <div class="flex items-start justify-between gap-3 border-b border-white/10 pb-3">
@@ -1032,47 +1042,141 @@
             🧩
           </div>
           <div>
-            <h3 class="text-sm sm:text-lg font-extrabold text-white">Модульная архитектура v0.8 (13 независимых блоков)</h3>
-            <p class="text-xs text-gray-400">Разверни структуру в новом репозитории GitHub в 1 клик или скачай любой модуль отдельно</p>
+            <h3 class="text-sm sm:text-lg font-extrabold text-white">Модульная архитектура v0.8 и Авто-распаковщик ZIP на GitHub</h3>
+            <p class="text-xs text-gray-400">Автоматическая распаковка ZIP-архивов по папкам в репозитории, прямая загрузка файлов и деплой в 1 клик</p>
           </div>
         </div>
         <button type="button" onclick="closeModularExplorerModal()" class="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 text-gray-300 flex items-center justify-center text-lg shrink-0">✕</button>
       </div>
 
-      <!-- БЛОК АВТО-РАЗВЁРТЫВАНИЯ ВСЕХ 13 ФАЙЛОВ В НОВЫЙ РЕПОЗИТОРИЙ -->
-      <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-emerald-950/60 via-indigo-950/60 to-purple-950/50 border border-emerald-500/40 space-y-3">
+      <!-- ШАГ 1: ПАРАМЕТРЫ РЕПОЗИТОРИЯ GITHUB (ОБЩИЕ ДЛЯ ВСЕХ ДЕЙСТВИЙ) -->
+      <div class="p-3.5 sm:p-4 rounded-2xl bg-gray-950/90 border border-emerald-500/40 space-y-3">
         <div class="flex items-center justify-between gap-2 flex-wrap">
           <div class="text-xs sm:text-sm font-extrabold text-white flex items-center gap-1.5">
-            <span>🚀</span>
-            <span>Авто-развёртывание всех 13 файлов в новый репозиторий GitHub в 1 клик</span>
+            <span>🐙</span>
+            <span>Параметры твоего репозитория GitHub</span>
           </div>
           <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-            GitHub REST API
+            Авто-сохранение в браузере
           </span>
         </div>
 
-        <p class="text-xs text-gray-300 leading-relaxed">
-          Создай на GitHub новый репозиторий (например, <code>raspisanie-v2</code> с галочкой <b>Add a README file</b>, чтобы создалась ветка <code>main</code>), впиши его ниже вместе со своим токеном и нажми кнопку — приложение само создаст папки <code>css/</code>, <code>data/</code>, <code>js/</code> и загрузит все 13 модулей!
-        </p>
-
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
           <div class="sm:col-span-5">
-            <label class="block text-[11px] font-semibold text-gray-300 mb-1">Новый репозиторий (<code>владелец/имя-репо</code>):</label>
-            <input type="text" id="modDeployRepoInput" placeholder="Например: ivanov/raspisanie-v2" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
+            <label class="block text-[11px] font-semibold text-gray-300 mb-1">Репозиторий (<code>владелец/имя-репо</code>):</label>
+            <input type="text" id="modDeployRepoInput" placeholder="Например: klaycher/Calen" class="w-full rounded-xl bg-gray-900 border border-white/15 px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
           </div>
           <div class="sm:col-span-2">
             <label class="block text-[11px] font-semibold text-gray-300 mb-1">Ветка:</label>
-            <input type="text" id="modDeployBranchInput" value="main" placeholder="main" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
+            <input type="text" id="modDeployBranchInput" value="main" placeholder="main" class="w-full rounded-xl bg-gray-900 border border-white/15 px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
           </div>
           <div class="sm:col-span-5">
             <label class="block text-[11px] font-semibold text-gray-300 mb-1">GitHub Personal Access Token:</label>
-            <input type="password" id="modDeployTokenInput" placeholder="ghp_... или github_pat_..." autocomplete="off" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
+            <input type="password" id="modDeployTokenInput" placeholder="ghp_... или github_pat_..." autocomplete="off" class="w-full rounded-xl bg-gray-900 border border-white/15 px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-500" />
           </div>
         </div>
 
         <div class="w-full h-1.5 bg-gray-900 rounded-full overflow-hidden">
           <div id="modDeployProgressBar" class="h-full bg-gradient-to-r from-emerald-500 via-indigo-500 to-purple-500 transition-all duration-300" style="width: 0%"></div>
         </div>
+      </div>
+
+      <!-- ШАГ 2: АВТО-РАСПАКОВКА ZIP-АРХИВА (ИЗ РЕПОЗИТОРИЯ ИЛИ С ТЕЛЕФОНА) И ПРЯМАЯ ЗАГРУЗКА -->
+      <div id="modDirectUploadCard" class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-indigo-950/85 via-purple-950/75 to-slate-900 border-2 border-indigo-500/60 space-y-3 shadow-xl">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div class="text-xs sm:text-sm font-extrabold text-white flex items-center gap-2">
+            <span class="text-base">📦</span>
+            <span>Авто-распаковка ZIP-архива или прямая загрузка файла на GitHub</span>
+          </div>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/25 text-amber-200 border border-amber-500/40 font-bold">
+            Встроенный ZIP-распаковщик
+          </span>
+        </div>
+
+        <!-- Быстрая кнопка, если пользователь УЖЕ закинул .zip файл в репозиторий через приложение GitHub -->
+        <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/35 space-y-2">
+          <div class="text-xs text-amber-200 leading-relaxed">
+            💡 <b>Если ты уже загрузил <code>.zip</code> архив в репозиторий через приложение GitHub</b> (и он лежит там нераспакованным файлом), просто нажми кнопку ниже — сайт сам найдёт этот <code>.zip</code> в репозитории, распакует все 13+ файлов по папкам (<code>index.html</code>, <code>css/</code>, <code>data/</code>, <code>js/</code>) и удалит нераспакованный архив:
+          </div>
+          <button type="button" onclick="unpackRemoteZipInGithubRepo(false)" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 active:scale-95 text-white text-xs sm:text-sm font-bold shadow-lg shadow-amber-600/25 transition flex items-center justify-center gap-2">
+            <span>📦 Найти и распаковать ZIP-архив, уже лежащий в репозитории GitHub</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <!-- Куда загрузить / Режим распаковки -->
+          <div>
+            <label class="block text-[11px] font-semibold text-gray-300 mb-1.5 flex items-center gap-1">
+              <span>🎯</span> <span>Режим загрузки / целевой путь:</span>
+            </label>
+            <select id="modUploadTargetSelect" onchange="onModTargetSelectChange()" class="w-full rounded-xl bg-gray-950 border border-white/20 px-3 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-indigo-400">
+              <option value="zip-unpack" selected>📦 Авто-распаковка ZIP-архива (все файлы по папкам)</option>
+              <option value="auto">✨ Авто-определение по имени файла (ZIP или модуль)</option>
+              <option value="index.html">📄 index.html (Главная страница в корне)</option>
+              <option value="data/schedule.json">📊 data/schedule.json (База расписания)</option>
+              <option value="css/style.css">🎨 css/style.css (Стили)</option>
+              <option value="data/teachers.json">👨‍🏫 data/teachers.json (Преподаватели)</option>
+              <option value="data/releases.json">📜 data/releases.json (История релизов)</option>
+              <option value="js/config.js">⚙️ js/config.js (Конфигурация и утилиты)</option>
+              <option value="js/calendar.js">📅 js/calendar.js (Календарь и 21 день)</option>
+              <option value="js/teachers.js">👨‍🏫 js/teachers.js (Досье преподавателей)</option>
+              <option value="js/admin.js">🛡️ js/admin.js (Панель админа)</option>
+              <option value="js/github-sync.js">🐙 js/github-sync.js (GitHub синхронизация)</option>
+              <option value="js/ai-scanner.js">🤖 js/ai-scanner.js (AI сканер фото)</option>
+              <option value="js/bsu-monitor.js">📡 js/bsu-monitor.js (Мониторинг law.bsu.by)</option>
+              <option value="js/app.js">🚀 js/app.js (PWA и запуск)</option>
+              <option value="README.md">📝 README.md (Документация)</option>
+            </select>
+          </div>
+
+          <!-- Кнопка выбора ZIP или файла на устройстве -->
+          <div>
+            <label class="block text-[11px] font-semibold text-gray-300 mb-1.5 flex items-center gap-1">
+              <span>📁</span> <span>Выбери <code>.zip</code> архив или файл на телефоне / ПК:</span>
+            </label>
+            <label for="modDirectFileInput" id="modDirectFileLabel" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-95 text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-indigo-600/30 border border-indigo-400/50 transition truncate">
+              <span class="text-sm">📁</span>
+              <span id="modDirectFileLabelText">Нажми сюда, чтобы выбрать ZIP-архив или файл...</span>
+            </label>
+            <input type="file" id="modDirectFileInput" onchange="onModDirectFileSelected(event)" class="hidden" accept=".zip,application/zip,application/x-zip-compressed,.html,.htm,.js,.css,.json,.md,text/*,*/*" />
+          </div>
+        </div>
+
+        <!-- Превью выбранного файла или распакованного ZIP -->
+        <div id="modDirectFilePreview" class="hidden p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-200 leading-relaxed font-mono flex items-start gap-2">
+          <span class="text-base shrink-0">✅</span>
+          <div id="modDirectFilePreviewContent" class="flex-1 min-w-0"></div>
+        </div>
+
+        <!-- Поле сообщения коммита -->
+        <div>
+          <label class="block text-[11px] font-semibold text-gray-300 mb-1">Сообщение коммита (необязательно):</label>
+          <input type="text" id="modDirectCommitMsg" placeholder="Авто-распаковка ZIP / обновление файлов" class="w-full rounded-xl bg-gray-950 border border-white/15 px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-indigo-500" />
+        </div>
+
+        <!-- Кнопка отправки / распаковки выбранного на устройстве файла -->
+        <button type="button" onclick="pushModDirectFileToGithub()" id="modDirectPushBtn" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 active:scale-95 text-white text-xs sm:text-sm font-bold shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2">
+          <span>🚀 Распаковать выбранный ZIP / загрузить файл в репозиторий GitHub</span>
+        </button>
+
+        <div id="modDirectStatusBox" class="hidden p-2.5 rounded-xl bg-gray-950/90 border border-white/10 text-xs leading-relaxed"></div>
+      </div>
+
+      <!-- ШАГ 3: АВТО-РАЗВЁРТЫВАНИЕ ВСЕХ 13 ВСТРОЕННЫХ МОДУЛЕЙ БЕЗ ФАЙЛОВ -->
+      <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-emerald-950/60 via-indigo-950/60 to-purple-950/50 border border-emerald-500/40 space-y-2.5">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div class="text-xs sm:text-sm font-extrabold text-white flex items-center gap-1.5">
+            <span>🚀</span>
+            <span>Развернуть все 13 встроенных модулей в репозиторий (без выбора файлов)</span>
+          </div>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            В 1 клик
+          </span>
+        </div>
+
+        <p class="text-xs text-gray-300 leading-relaxed">
+          Даже не выбирая файл на телефоне, ты можешь нажать эту кнопку — приложение само создаст папки <code>css/</code>, <code>data/</code>, <code>js/</code>, запишет все 13 актуальных модулей в репозиторий и удалит лишний нераспакованный <code>.zip</code>:
+        </p>
 
         <div id="modDeployStatusBox" class="hidden p-2.5 rounded-xl bg-gray-950/90 border border-white/10 text-xs leading-relaxed"></div>
 
@@ -1084,7 +1188,7 @@
       <!-- СПИСОК ВСЕХ 13 МОДУЛЕЙ -->
       <div class="space-y-2">
         <div class="text-xs font-bold uppercase tracking-wider text-gray-400">
-          📂 Структура проекта (нажми «👁️ Код» для просмотра или «💾 Скачать» для сохранения отдельного файла):
+          📂 Структура проекта (нажми «👁️ Код» для просмотра, «💾 Скачать» или «📤 Загрузить»):
         </div>
         <div id="modularFilesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
       </div>
@@ -1108,7 +1212,6 @@
     </div>
   </div>
 
-  <!-- МОДУЛЬНЫЕ СКРИПТЫ ПРИЛОЖЕНИЯ (v0.8) -->
   <script src="js/config.js"></script>
   <script src="js/calendar.js"></script>
   <script src="js/teachers.js"></script>
