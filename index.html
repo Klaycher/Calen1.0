@@ -15,6 +15,7 @@
   <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D0%A0%D0%B0%D1%81%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%201%D0%91%20%E2%80%A2%20%D0%AE%D1%80%D1%84%D0%B0%D0%BA%20%D0%91%D0%93%D0%A3%22%2C%22short_name%22%3A%22%D0%A0%D0%B0%D1%81%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%201%D0%91%22%2C%22description%22%3A%22%D0%9A%D0%BE%D0%BE%D1%80%D0%B4%D0%B8%D0%BD%D0%B0%D1%82%D0%BE%D1%80%20%D1%81%D0%B5%D1%81%D1%81%D0%B8%D0%B8%20%D0%B8%20%D0%BF%D1%80%D0%B5%D0%BF%D0%BE%D0%B4%D0%B0%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D0%B8%20%D0%AE%D1%80%D1%84%D0%B0%D0%BA%D0%B0%20%D0%91%D0%93%D0%A3%20%D0%B4%D0%BB%D1%8F%20%D0%B3%D1%80%D1%83%D0%BF%D0%BF%D1%8B%201%D0%91%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23090b10%22%2C%22theme_color%22%3A%22%23090b10%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20100'%253E%253Cdefs%253E%253ClinearGradient%20id%3D'g'%20x1%3D'0%2525'%20y1%3D'0%2525'%20x2%3D'100%2525'%20y2%3D'100%2525'%253E%253Cstop%20offset%3D'0%2525'%20stop-color%3D'%25236366f1'%2F%253E%253Cstop%20offset%3D'50%2525'%20stop-color%3D'%2523a855f7'%2F%253E%253Cstop%20offset%3D'100%2525'%20stop-color%3D'%2523ec4899'%2F%253E%253C%2FlinearGradient%253E%253C%2Fdefs%253E%253Crect%20width%3D'100'%20height%3D'100'%20rx%3D'24'%20fill%3D'url(%2523g)'%2F%253E%253Ctext%20x%3D'50'%20y%3D'63'%20fill%3D'white'%20font-family%3D'sans-serif'%20font-weight%3D'900'%20font-size%3D'42'%20text-anchor%3D'middle'%253E1%D0%91%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22192x192%20512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D" />
   <title>Расписание 1Б • Координатор сессии и Преподаватели Юрфака БГУ v0.8 (Модульная архитектура)</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
@@ -754,33 +755,38 @@
           </div>
         </div>
 
-        <!-- БЛОК АВТОПРОВЕРКИ САЙТА ЮРФАКА БГУ И ДЕМО-РЕЖИМА (v0.7) -->
-        <div class="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/35 space-y-2.5 mt-2 shadow-inner">
+        <!-- БЛОК ОБНОВЛЕНИЯ ПО EXCEL-ТАБЛИЦЕ С САЙТА ЮРФАКА БГУ -->
+        <div class="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/60 via-slate-900 to-indigo-950/50 border border-emerald-500/40 space-y-2.5 mt-2 shadow-inner">
           <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
-              <span class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center text-xs font-bold">🏛️</span>
+              <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center text-sm font-bold">🏛️</span>
               <div>
-                <div class="text-xs font-bold text-white">Мониторинг расписания Юрфака БГУ + Демо-режим (<code>demo.html</code>)</div>
-                <div class="text-[10px] text-gray-400">Автопроверка при входе в админку для 4 курса заочного отделения (Политология, 1Б)</div>
+                <div class="text-xs font-bold text-white">Обновление расписания по Excel-таблице с сайта БГУ (law.bsu.by)</div>
+                <div class="text-[10px] text-gray-400">4 курс, заочное отделение • Специальность «Политология» (группа 1Б)</div>
               </div>
             </div>
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              Gemini API
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
+              .XLS • 3 Листа
             </span>
           </div>
 
           <div class="text-[11px] text-gray-300 leading-relaxed">
-            Источник: <a href="https://law.bsu.by/student/rasklad-zanyatkau/pervoe-vysshee-i-parallelnoe-obrazovanie.html" target="_blank" rel="noopener noreferrer" class="text-emerald-300 underline">law.bsu.by (Первое высшее и параллельное образование)</a>. В демо-режиме Gemini создаёт случайное расписание в файле <code>demo.html</code> в репозитории, ждёт его записи, считывает изменения и запрашивает подтверждение (само расписание не меняется, а <code>demo.html</code> удаляется).
+            Источник: <a href="https://law.bsu.by/student/rasklad-zanyatkau/pervoe-vysshee-i-parallelnoe-obrazovanie.html" target="_blank" rel="noopener noreferrer" class="text-emerald-300 underline font-bold">law.bsu.by (Заочное отделение)</a>. Расписание сессии (26.10 – 14.11.2026) хранится в файле <code>.xls</code>, который содержит 3 листа на 3 недели. Приложение считывает таблицу, извлекает пары группы 1Б, применяет правило окончания пар в 17:10 и обновляет базу.
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
-            <button type="button" onclick="checkBsuWebsiteSchedule(true)" id="modalCheckBsuBtn" class="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-1.5">
-              <span>🔍 Проверить сайт БГУ сейчас</span>
+            <button type="button" onclick="checkBsuWebsiteSchedule(true)" id="modalCheckBsuBtn" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-1.5">
+              <span>📊 Скачать и распарсить Excel БГУ</span>
             </button>
-            <button type="button" onclick="runDemoAutoUpdateTest()" id="modalRunDemoBtn" class="py-2 px-3 rounded-xl bg-amber-500/25 hover:bg-amber-500/40 text-amber-200 border border-amber-500/40 text-xs font-bold transition flex items-center justify-center gap-1.5">
-              <span>🧪 Демо-режим (demo.html)</span>
-            </button>
+
+            <label for="bsuExcelFileInput" id="bsuExcelFileLabel" class="py-2.5 px-3 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-400/50 text-indigo-200 hover:text-white text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer truncate">
+              <span>📁</span>
+              <span id="bsuExcelFileLabelText">Загрузить файл .xls / .xlsx</span>
+            </label>
+            <input type="file" id="bsuExcelFileInput" accept=".xls,.xlsx" onchange="onBsuExcelFileSelected(event)" class="hidden" />
           </div>
+
+          <div id="bsuExcelStatusBox" class="hidden p-2.5 rounded-xl bg-gray-950/90 border border-white/10 text-xs leading-relaxed"></div>
         </div>
       </div>
 
