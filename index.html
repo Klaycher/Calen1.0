@@ -131,11 +131,31 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2 shrink-0">
-          <button type="button" onclick="checkBsuWebsiteSchedule(true)" id="adminCheckBsuBtn" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-bold transition shadow-lg shadow-emerald-600/20 flex items-center gap-1.5">
-            <span>🔍 Проверить сайт БГУ</span>
+          <!-- Кнопка прямого выбора скачанного файла Excel (.xls / .xlsx) с телефона -->
+          <label for="adminBsuExcelFileInput" id="adminBsuExcelFileLabel" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-95 text-white text-xs font-bold transition shadow-lg shadow-indigo-600/30 flex items-center gap-1.5 cursor-pointer">
+            <span>📁</span>
+            <span id="adminBsuExcelFileLabelText">Выбрать файл Excel (.xls / .xlsx) с телефона</span>
+          </label>
+          <button type="button" onclick="restoreFullReferenceSchedule1B()" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-bold transition shadow-lg shadow-emerald-600/30 flex items-center gap-1.5" title="Мгновенно восстановить правильное расписание 1Б (по 4 пары в день, каб. 406/604/508/606/202, окончание в 17:10)">
+            <span>🔄</span>
+            <span>Вернуть базу 1Б (4 пары/день)</span>
           </button>
-          <button type="button" onclick="runDemoAutoUpdateTest()" id="adminRunDemoBtn" class="px-3 py-1.5 rounded-xl bg-amber-500/25 hover:bg-amber-500/40 active:scale-95 text-amber-200 border border-amber-500/40 text-xs font-bold transition flex items-center gap-1.5">
-            <span>🧪 Демо-тест (demo.html)</span>
+          <input type="file" id="adminBsuExcelFileInput" accept=".xls,.xlsx" onchange="onBsuExcelFileSelected(event); const lbl = document.getElementById('adminBsuExcelFileLabelText'); if (lbl && this.files && this.files[0]) lbl.textContent = 'Выбран: ' + this.files[0].name;" class="hidden" />
+
+          <!-- Ссылка на официальную страницу law.bsu.by -->
+          <a href="https://law.bsu.by/student/rasklad-zanyatkau/pervoe-vysshee-i-parallelnoe-obrazovanie.html" target="_blank" rel="noopener noreferrer" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-gray-200 hover:text-white text-xs font-bold transition flex items-center gap-1.5">
+            <span>🌐</span>
+            <span>Скачать с law.bsu.by ↗</span>
+          </a>
+
+          <!-- Кнопка авто-проверки через прокси -->
+          <button type="button" onclick="checkBsuWebsiteSchedule(true)" id="adminCheckBsuBtn" class="px-3 py-2 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/40 active:scale-95 text-emerald-200 hover:text-white text-xs font-bold transition flex items-center gap-1.5">
+            <span>📊</span>
+            <span>Авто-скачивание БГУ</span>
+          </button>
+
+          <button type="button" onclick="runDemoAutoUpdateTest()" id="adminRunDemoBtn" class="px-2.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 border border-amber-500/40 text-amber-200 text-xs font-semibold transition flex items-center gap-1">
+            <span>🧪 Демо</span>
           </button>
         </div>
       </div>
