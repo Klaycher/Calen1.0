@@ -23,12 +23,13 @@ function toggleApiKeyVisibility() {
 }
 
             async function discoverAvailableGeminiModels(apiKey) {
-  // Базовые модели для генерации текста и фото
   const defaultModels = [
-    'gemini-3.5-flash-lite',
-    'gemini-3.6-flash',
-    'gemini-3.8-flash',
-    'gemini-flash-latest'
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+    'gemini-flash-latest',
+    'gemini-2.5-pro',
+    'gemini-1.5-pro'
   ];
 
   try {
@@ -43,23 +44,18 @@ function toggleApiKeyVisibility() {
           return (
             methods.includes('generateContent') &&
             name.includes('gemini') &&
-            name.includes('flash') &&
+            (name.includes('flash') || name.includes('pro')) &&
             !name.includes('tts') &&
             !name.includes('audio') &&
             !name.includes('computer-use') &&
             !name.includes('embedding') &&
             !name.includes('imagen') &&
-            !name.includes('preview') &&
-            !name.includes('exp') &&
-            !name.includes('2.0') &&
-            !name.includes('2.5') &&
-            !name.includes('1.5')
+            !name.includes('vision-only')
           );
         })
         .map(m => m.name.replace(/^models\//, ''));
 
       if (valid.length > 0) {
-        // Приоритет проверенным легковесным моделям
         const ordered = [...new Set([...defaultModels.filter(m => valid.includes(m)), ...valid])];
         return ordered;
       }
@@ -515,6 +511,37 @@ function healScheduleAndExamsFromLogs() {
 
   if (!Array.isArray(EXAMS)) EXAMS = [];
   if (!CLASSES || typeof CLASSES !== 'object') CLASSES = {};
+
+  // 0. Авто-исправление повреждённого импорта (если из-за старого бага парсера в каждом дне осталась только 1 пара «1п» или попали фальшивые даты вроде 2026-50-15 / заголовки «Четверг 29.10.»)
+  const classDateKeys = Object.keys(CLASSES);
+  const hasBogusDateKeys = classDateKeys.some(k => !/^2026-(?:10|11)-\d{2}$/.test(k) || k === '2026-10-14');
+  if (hasBogusDateKeys) {
+    for (const k of classDateKeys) {
+      if (!/^2026-(?:10|11)-\d{2}$/.test(k) || k === '2026-10-14') {
+        delete CLASSES[k];
+        healed = true;
+      }
+    }
+  }
+  const validDayEntries = Object.entries(CLASSES).filter(([k, v]) => Array.isArray(v) && v.length > 0);
+  const singlePairDaysCount = validDayEntries.filter(([k, v]) => v.length === 1).length;
+  const hasDayHeaderAsSubject = validDayEntries.some(([k, v]) =>
+    v.some(item => /(понедельник|вторник|среда|четверг|пятница|суббота)/i.test(String(item.subject || '')))
+  );
+  if ((validDayEntries.length >= 6 && singlePairDaysCount >= validDayEntries.length - 1) || hasDayHeaderAsSubject) {
+    if (window.MODULAR_PROJECT_FILES && window.MODULAR_PROJECT_FILES['data/schedule.json']) {
+      try {
+        const refData = JSON.parse(window.MODULAR_PROJECT_FILES['data/schedule.json']);
+        if (refData && refData.classes && Object.keys(refData.classes).length >= 10) {
+          CLASSES = sanitizeClassesData(refData.classes);
+          if ((!Array.isArray(EXAMS) || EXAMS.length === 0) && Array.isArray(refData.exams)) {
+            EXAMS = refData.exams;
+          }
+          healed = true;
+        }
+      } catch (e) {}
+    }
+  }
 
   // 1. Проверяем CLASSES на случайно попавшие туда утренние зачёты/экзамены и переносим их в EXAMS
   for (const dateIso of Object.keys(CLASSES)) {
